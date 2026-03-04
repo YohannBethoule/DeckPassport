@@ -13,18 +13,16 @@ export function useDownloadCard(element: Ref<HTMLElement | null>) {
       const dataUrl = await toPng(element.value, {
         pixelRatio: 2,
         skipFonts: true,
-        fetchRequestInit: { mode: 'cors' },
+        fetchRequestInit: { mode: 'cors' }
       })
 
       const link = document.createElement('a')
       link.download = filename
       link.href = dataUrl
       link.click()
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to generate image:', error)
-    }
-    finally {
+    } finally {
       hiddenElements.forEach(el => el.style.display = '')
       loading.value = false
     }

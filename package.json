@@ -1,5 +1,5 @@
 {
-  "name": "DeckPassport",
+  "name": "deck-passport",
   "private": true,
   "type": "module",
   "scripts": {

@@ -75,7 +75,7 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
           </div>
 
           <div class="space-y-1">
-            <h3 class="text-sm font-semibold text-[var(--ui-text-dimmed)]">
+            <h3 class="text-sm font-semibold text-dimmed">
               How does it win ?
             </h3>
             <p class="text-sm whitespace-pre-line">
