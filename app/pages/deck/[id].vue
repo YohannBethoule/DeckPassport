@@ -1,15 +1,19 @@
-<script lang="ts">
-import {defineComponent} from 'vue'
+<script setup lang="ts">
+import { testDeck } from '~/composables/useTestDeck'
 
-export default defineComponent({
-name: "[id].vue"
-})
+const deckPassport = useDeckPassport()
+
+if (!deckPassport.value) {
+  deckPassport.value = testDeck
+}
 </script>
 
 <template>
+  <UPage v-if="deckPassport">
+    <UPageHeader title="Deck Passport" />
 
+    <UPageBody>
+      <DeckView :deck="deckPassport" />
+    </UPageBody>
+  </UPage>
 </template>
-
-<style scoped>
-
-</style>

@@ -4,6 +4,7 @@ import { commanders } from './commander'
 export const decks = pgTable('decks', {
   id: serial('id').primaryKey(),
   commanderId: integer('commander_id').notNull().references(() => commanders.id),
+  title: text('title'),
   bracket: integer('bracket').notNull(),
   description: text('description'),
   winCondition: text('win_condition').notNull(),

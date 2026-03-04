@@ -1,5 +1,5 @@
 <template>
-  <svg>
+  <svg viewBox="-525 0 100 100">
     <g>
       <circle
         fill="#F8F6D8"

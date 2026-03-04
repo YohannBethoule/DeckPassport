@@ -13,12 +13,13 @@ const bracketLabels: Record<number, string> = {
   5: 'cEDH'
 }
 
-const colorComponents: Record<string, string> = {
-  W: 'IconsWhiteMana',
-  U: 'IconsBlueMana',
-  B: 'IconsBlackMana',
-  R: 'IconsRedMana',
-  G: 'IconsGreenMana'
+const colorComponents: Record<string, ReturnType<typeof resolveComponent>> = {
+  W: resolveComponent('IconsWhiteMana'),
+  U: resolveComponent('IconsBlueMana'),
+  B: resolveComponent('IconsBlackMana'),
+  R: resolveComponent('IconsRedMana'),
+  G: resolveComponent('IconsGreenMana'),
+  C: resolveComponent('IconsColorlessMana')
 }
 
 const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracket ${props.deck.bracket}`)
@@ -32,22 +33,22 @@ const coreCardsList = computed(() => {
 <template>
   <UCard class="max-w-2xl mx-auto">
     <div class="flex flex-col sm:flex-row gap-6">
-      <div
-        v-if="deck.imageUrl"
-        class="shrink-0"
-      >
-        <img
-          :src="deck.imageUrl"
-          :alt="deck.name"
-          class="w-full sm:w-48 rounded-lg object-cover"
+      <div class="flex flex-col">
+        <div
+          v-if="deck.imageUrl"
+          class="shrink-0"
+          :style="{ width: imageWidth, maxWidth: '16rem' }"
         >
+          <img
+            :src="deck.imageUrl"
+            :alt="deck.commanderName"
+            class="w-full rounded-xl object-cover"
+          >
+        </div>
       </div>
 
       <div class="flex-1 space-y-4">
         <div>
-          <h2 class="text-2xl font-bold">
-            {{ deck.name }}
-          </h2>
           <div class="flex items-center gap-1.5 mt-1">
             <component
               :is="colorComponents[color]"
@@ -56,6 +57,9 @@ const coreCardsList = computed(() => {
               class="size-5"
             />
           </div>
+          <h2 class="text-2xl font-bold">
+            {{ deck.title }}
+          </h2>
         </div>
 
         <UBadge
@@ -68,9 +72,6 @@ const coreCardsList = computed(() => {
           v-if="deck.description"
           class="space-y-1"
         >
-          <h3 class="text-sm font-semibold text-[var(--ui-text-dimmed)]">
-            Description
-          </h3>
           <p class="text-sm whitespace-pre-line">
             {{ deck.description }}
           </p>
@@ -78,29 +79,29 @@ const coreCardsList = computed(() => {
 
         <div class="space-y-1">
           <h3 class="text-sm font-semibold text-[var(--ui-text-dimmed)]">
-            Win Condition
+            How does it win ?
           </h3>
           <p class="text-sm whitespace-pre-line">
             {{ deck.winCondition }}
           </p>
         </div>
 
-        <div
-          v-if="coreCardsList.length"
-          class="space-y-1"
-        >
-          <h3 class="text-sm font-semibold text-[var(--ui-text-dimmed)]">
-            Core Cards
-          </h3>
-          <ul class="text-sm list-disc list-inside">
-            <li
-              v-for="card in coreCardsList"
-              :key="card"
-            >
-              {{ card }}
-            </li>
-          </ul>
-        </div>
+        <!--        <div -->
+        <!--          v-if="coreCardsList.length" -->
+        <!--          class="space-y-1" -->
+        <!--        > -->
+        <!--          <h3 class="text-sm font-semibold text-[var(&#45;&#45;ui-text-dimmed)]"> -->
+        <!--            Core Cards -->
+        <!--          </h3> -->
+        <!--          <ul class="text-sm list-disc list-inside"> -->
+        <!--            <li -->
+        <!--              v-for="card in coreCardsList" -->
+        <!--              :key="card" -->
+        <!--            > -->
+        <!--              {{ card }} -->
+        <!--            </li> -->
+        <!--          </ul> -->
+        <!--        </div> -->
 
         <div v-if="deck.deckListUrl">
           <UButton

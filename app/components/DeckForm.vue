@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { InsertDeckWithCommander } from '#shared/schemas/deck'
 import { insertDeckWithCommanderFormSchema } from '#shared/schemas/deck'
 
 const form = reactive({
-  name: '',
+  commanderName: '',
+  title: '',
   imageUrl: '',
   bracket: undefined as number | undefined,
   colors: [] as ('W' | 'U' | 'B' | 'R' | 'G')[],
@@ -25,11 +27,15 @@ const colorOptions = [
   { label: 'Blue', value: 'U' },
   { label: 'Black', value: 'B' },
   { label: 'Red', value: 'R' },
-  { label: 'Green', value: 'G' }
+  { label: 'Green', value: 'G' },
+  { label: 'Colorless', value: 'C' }
 ]
 
+const deckPassport = useDeckPassport()
+
 function onSubmit() {
-  console.log('Form submitted:', form)
+  deckPassport.value = { ...form } as InsertDeckWithCommander
+  navigateTo('/deck/1')
 }
 </script>
 
@@ -42,12 +48,24 @@ function onSubmit() {
   >
     <UFormField
       label="Commander Name"
-      name="name"
+      name="commanderName"
       required
     >
       <UInput
-        v-model="form.name"
+        v-model="form.commanderName"
         placeholder="e.g. Atraxa, Praetors' Voice"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField
+      label="Deck Title"
+      name="title"
+      required
+    >
+      <UInput
+        v-model="form.title"
+        placeholder="e.g. Songs of Bombadil"
         class="w-full"
       />
     </UFormField>
@@ -108,6 +126,10 @@ function onSubmit() {
           />
           <IconsGreenMana
             v-else-if="item.value === 'G'"
+            class="size-5"
+          />
+          <IconsColorlessMana
+            v-else-if="item.value === 'C'"
             class="size-5"
           />
         </template>
