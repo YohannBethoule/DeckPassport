@@ -1,0 +1,14 @@
+import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { commanders } from './commander'
+
+export const decks = pgTable('decks', {
+  id: serial('id').primaryKey(),
+  commanderId: integer('commander_id').notNull().references(() => commanders.id),
+  bracket: integer('bracket').notNull(),
+  description: text('description'),
+  winCondition: text('win_condition').notNull(),
+  coreCards: text('core_cards'),
+  deckListUrl: text('deck_list_url'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+})
