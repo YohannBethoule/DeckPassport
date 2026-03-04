@@ -17,6 +17,7 @@
     "@nuxt/ui": "^4.5.1",
     "drizzle-orm": "^0.45.1",
     "drizzle-zod": "^0.8.3",
+    "html-to-image": "^1.11.13",
     "nuxt": "^4.3.1",
     "pg": "^8.19.0",
     "tailwindcss": "^4.2.1",

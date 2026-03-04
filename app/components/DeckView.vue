@@ -23,96 +23,79 @@ const colorComponents: Record<string, ReturnType<typeof resolveComponent>> = {
 }
 
 const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracket ${props.deck.bracket}`)
-
-const coreCardsList = computed(() => {
-  if (!props.deck.coreCards) return []
-  return props.deck.coreCards.split('\n').map(c => c.trim()).filter(Boolean)
-})
 </script>
 
 <template>
-  <UCard class="max-w-2xl mx-auto">
-    <div class="flex flex-col sm:flex-row gap-6">
-      <div class="flex flex-col">
+  <UCard class="max-w-2xl mx-auto py-2">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row gap-6 sm:relative">
         <div
           v-if="deck.imageUrl"
-          class="shrink-0"
-          :style="{ width: imageWidth, maxWidth: '16rem' }"
+          class="sm:absolute sm:inset-y-0 sm:left-0 sm:w-64"
         >
           <img
             :src="deck.imageUrl"
             :alt="deck.commanderName"
-            class="w-full rounded-xl object-cover"
+            class="max-h-full max-w-full rounded-xl"
           >
         </div>
-      </div>
-
-      <div class="flex-1 space-y-4">
-        <div>
-          <div class="flex items-center gap-1.5 mt-1">
-            <component
-              :is="colorComponents[color]"
-              v-for="color in deck.colors"
-              :key="color"
-              class="size-5"
-            />
-          </div>
-          <h2 class="text-2xl font-bold">
-            {{ deck.title }}
-          </h2>
-        </div>
-
-        <UBadge
-          :label="`Bracket ${deck.bracket} — ${bracketLabel}`"
-          size="lg"
-          variant="subtle"
-        />
 
         <div
-          v-if="deck.description"
-          class="space-y-1"
+          class="flex-1 space-y-4"
+          :class="{ 'sm:ml-68': deck.imageUrl }"
         >
-          <p class="text-sm whitespace-pre-line">
-            {{ deck.description }}
-          </p>
-        </div>
+          <div>
+            <div class="flex items-center gap-1.5 mt-1">
+              <component
+                :is="colorComponents[color]"
+                v-for="color in deck.colors"
+                :key="color"
+                class="size-5"
+              />
+            </div>
+            <h2 class="text-2xl font-bold">
+              {{ deck.title }}
+            </h2>
+          </div>
 
-        <div class="space-y-1">
-          <h3 class="text-sm font-semibold text-[var(--ui-text-dimmed)]">
-            How does it win ?
-          </h3>
-          <p class="text-sm whitespace-pre-line">
-            {{ deck.winCondition }}
-          </p>
-        </div>
+          <UBadge
+            size="lg"
+            variant="subtle"
+          >
+            <span class="whitespace-nowrap">Bracket {{ deck.bracket }} — {{ bracketLabel }}</span>
+          </UBadge>
 
-        <!--        <div -->
-        <!--          v-if="coreCardsList.length" -->
-        <!--          class="space-y-1" -->
-        <!--        > -->
-        <!--          <h3 class="text-sm font-semibold text-[var(&#45;&#45;ui-text-dimmed)]"> -->
-        <!--            Core Cards -->
-        <!--          </h3> -->
-        <!--          <ul class="text-sm list-disc list-inside"> -->
-        <!--            <li -->
-        <!--              v-for="card in coreCardsList" -->
-        <!--              :key="card" -->
-        <!--            > -->
-        <!--              {{ card }} -->
-        <!--            </li> -->
-        <!--          </ul> -->
-        <!--        </div> -->
+          <div
+            v-if="deck.description"
+            class="space-y-1"
+          >
+            <p class="text-sm whitespace-pre-line">
+              {{ deck.description }}
+            </p>
+          </div>
 
-        <div v-if="deck.deckListUrl">
-          <UButton
-            :to="deck.deckListUrl"
-            target="_blank"
-            label="View Deck List"
-            icon="i-lucide-external-link"
-            variant="outline"
-            size="sm"
-          />
+          <div class="space-y-1">
+            <h3 class="text-sm font-semibold text-[var(--ui-text-dimmed)]">
+              How does it win ?
+            </h3>
+            <p class="text-sm whitespace-pre-line">
+              {{ deck.winCondition }}
+            </p>
+          </div>
         </div>
+      </div>
+      <div
+        v-if="deck.deckListUrl"
+        class="no-export ml-auto"
+      >
+        <UButton
+          :to="deck.deckListUrl"
+          target="_blank"
+          label="View Deck List"
+          icon="i-lucide-external-link"
+          variant="outline"
+          size="sm"
+        />
       </div>
     </div>
   </UCard>
