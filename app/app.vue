@@ -11,8 +11,8 @@ useHead({
   }
 })
 
-const title = 'Nuxt Starter Template'
-const description = 'A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.'
+const title = 'EDH DeckPassport'
+const description = 'DeckPassport is a tool for MTG Commander players to generate a sleek, shareable card that captures the identity of their deck — commander art, color identity, bracket, win conditions, and key cards, all in one image. No more walls of text to explain your deck. Just share the card.'
 
 useSeoMeta({
   title,
@@ -32,8 +32,6 @@ useSeoMeta({
         <NuxtLink to="/">
           <AppLogo class="w-auto h-6 shrink-0" />
         </NuxtLink>
-
-        <TemplateMenu />
       </template>
 
       <template #right>
@@ -65,7 +63,7 @@ useSeoMeta({
 
       <template #right>
         <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
+          to="https://github.com/YohannBethoule/DeckPassport"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"

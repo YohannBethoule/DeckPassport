@@ -1,18 +1,48 @@
 <script setup lang="ts">
 import type { InsertDeckWithCommander } from '#shared/schemas/deck'
 import { insertDeckWithCommanderFormSchema } from '#shared/schemas/deck'
+import { type ScryfallCard, getCardImageUri } from '~/composables/useScryfall'
 
 const form = reactive({
   commanderName: '',
   title: '',
   imageUrl: '',
   bracket: undefined as number | undefined,
-  colors: [] as ('W' | 'U' | 'B' | 'R' | 'G')[],
+  colors: [] as ('W' | 'U' | 'B' | 'R' | 'G' | 'C')[],
   description: '',
   winCondition: '',
   coreCards: '',
   deckListUrl: ''
 })
+
+const { searchCommanders } = useScryfall()
+const commanderResults = ref<ScryfallCard[]>([])
+const selectedCard = ref<ScryfallCard | null>(null)
+
+async function onCommanderSearch(query: string) {
+  commanderResults.value = await searchCommanders(query)
+}
+
+function onCommanderSelect(name: string) {
+  if (!name) return
+  const card = commanderResults.value.find(c => c.name === name)
+  if (!card) return
+
+  selectedCard.value = card
+  if (!form.title) {
+    form.title = card.name
+  }
+  const imageUrl = getCardImageUri(card)
+  if (imageUrl) {
+    form.imageUrl = imageUrl
+  }
+  form.colors = card.color_identity.filter(
+    (c): c is 'W' | 'U' | 'B' | 'R' | 'G' => ['W', 'U', 'B', 'R', 'G'].includes(c)
+  )
+  if (!form.colors?.length) {
+    form.colors = ['C']
+  }
+}
 
 const bracketOptions = [
   { label: 'Bracket 1 - Exhibition', value: 1 },
@@ -51,10 +81,13 @@ function onSubmit() {
       name="commanderName"
       required
     >
-      <UInput
+      <UInputMenu
         v-model="form.commanderName"
+        :items="commanderResults.map(c => c.name)"
         placeholder="e.g. Atraxa, Praetors' Voice"
         class="w-full"
+        @update:search-term="onCommanderSearch"
+        @update:model-value="onCommanderSelect"
       />
     </UFormField>
 

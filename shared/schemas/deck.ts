@@ -6,7 +6,7 @@ import { insertCommanderSchema } from './commander'
 export const insertDeckSchema = createInsertSchema(decks, {
   bracket: z.number().int().min(1, 'Bracket must be between 1 and 5').max(5, 'Bracket must be between 1 and 5'),
   winCondition: z.string().min(1, 'Win condition is required'),
-  deckListUrl: z.url('Must be a valid URL').optional()
+  deckListUrl: z.union([z.url('Must be a valid URL'), z.literal('')]).optional()
 }).omit({
   id: true,
   commanderId: true,
