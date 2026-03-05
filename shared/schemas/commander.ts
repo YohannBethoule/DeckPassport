@@ -2,7 +2,7 @@ import { z } from 'zod/v4'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { commanders } from '#server/database/schema'
 
-const validColors = ['W', 'U', 'B', 'R', 'G'] as const
+const validColors = ['W', 'U', 'B', 'R', 'G', 'C'] as const
 
 export const insertCommanderSchema = createInsertSchema(commanders, {
   name: z.string().min(1, 'Commander name is required'),
