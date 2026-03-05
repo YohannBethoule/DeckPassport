@@ -36,15 +36,6 @@ useSeoMeta({
 
       <template #right>
         <UColorModeButton />
-
-        <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
-          variant="ghost"
-        />
       </template>
     </UHeader>
 
@@ -57,7 +48,7 @@ useSeoMeta({
     <UFooter>
       <template #left>
         <p class="text-sm text-muted">
-          Built by Yohann Bethoule • © {{ new Date().getFullYear() }}
+          Built by Yohann Bethoule • ©&nbsp;{{ new Date().getFullYear() }}
         </p>
       </template>
 

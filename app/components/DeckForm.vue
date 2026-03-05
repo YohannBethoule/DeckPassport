@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InsertDeckWithCommander } from '#shared/schemas/deck'
+import { DESCRIPTION_MAX_LENGTH, type InsertDeckWithCommander } from '#shared/schemas/deck'
 import { insertDeckWithCommanderFormSchema } from '#shared/schemas/deck'
 import { type ScryfallCard, getCardImageUri } from '~/composables/useScryfall'
 
@@ -170,39 +170,35 @@ function onSubmit() {
     </UFormField>
 
     <UFormField
-      label="Description"
+      label="Short Description / Lore"
       name="description"
+      :hint="DESCRIPTION_MAX_LENGTH + ' max characters'"
+      required
     >
       <UTextarea
         v-model="form.description"
-        placeholder="Briefly describe your deck's strategy and theme..."
+        placeholder="Give a quick presentation of the lore and gameplay of your deck"
         :rows="3"
         class="w-full"
+        :maxlength="DESCRIPTION_MAX_LENGTH"
+        minlength="0"
       />
     </UFormField>
 
     <UFormField
       label="How does it win?"
       name="winCondition"
+      :hint="DESCRIPTION_MAX_LENGTH + ' max characters'"
       required
     >
       <UTextarea
         v-model="form.winCondition"
         placeholder="e.g. Infinite combo with X + Y, or commander damage..."
+
         :rows="2"
         class="w-full"
-      />
-    </UFormField>
-
-    <UFormField
-      label="Core Cards"
-      name="coreCards"
-    >
-      <UTextarea
-        v-model="form.coreCards"
-        placeholder="List key cards, one per line..."
-        :rows="4"
-        class="w-full"
+        :maxlength="DESCRIPTION_MAX_LENGTH"
+        minlength="0"
       />
     </UFormField>
 

@@ -13,8 +13,6 @@ const { download, loading } = useDownloadCard(cardRef)
 
 <template>
   <UPage v-if="deckPassport">
-    <UPageHeader title="Deck Passport" />
-
     <UPageBody>
       <div ref="cardRef">
         <DeckView :deck="deckPassport" />

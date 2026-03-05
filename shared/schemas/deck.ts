@@ -3,9 +3,12 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { decks } from '#server/database/schema'
 import { insertCommanderSchema } from './commander'
 
+export const DESCRIPTION_MAX_LENGTH = 200
+
 export const insertDeckSchema = createInsertSchema(decks, {
   bracket: z.number().int().min(1, 'Bracket must be between 1 and 5').max(5, 'Bracket must be between 1 and 5'),
-  winCondition: z.string().min(1, 'Win condition is required'),
+  description: z.string().min(1, 'Description is required').max(DESCRIPTION_MAX_LENGTH, 'Description must not exceed 200 characters'),
+  winCondition: z.string().min(1, 'Win condition is required').max(DESCRIPTION_MAX_LENGTH, 'Win conditions must not exceed 200 characters'),
   deckListUrl: z.union([z.url('Must be a valid URL'), z.literal('')]).optional()
 }).omit({
   id: true,
