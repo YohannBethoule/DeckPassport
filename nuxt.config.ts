@@ -10,9 +10,10 @@ export default defineNuxtConfig({
     head: {
       script: [
         {
-          'src': 'https://cloud.umami.is/script.js',
+          'src': '/stats/script.js',
           'defer': true,
-          'data-website-id': '4435c17c-b344-4038-8d08-9537caaf234e'
+          'data-website-id': '4435c17c-b344-4038-8d08-9537caaf234e',
+          'data-host-url': '/api/analytics'
         }
       ]
     }
@@ -21,7 +22,9 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: true },
+    '/stats/**': { proxy: 'https://cloud.umami.is/**' },
+    '/api/analytics/**': { proxy: 'https://api-gateway.umami.dev/**' }
   },
 
   compatibilityDate: '2025-01-15',
