@@ -7,7 +7,8 @@ if (!deckPassport.value) {
   deckPassport.value = testDeck
 }
 
-const exportRef = ref<HTMLElement | null>(null)
+const exportComponent = ref<{ $el: HTMLElement } | null>(null)
+const exportRef = computed(() => exportComponent.value?.$el ?? null)
 const { download, loading } = useDownloadCard(exportRef)
 </script>
 
@@ -26,12 +27,11 @@ const { download, loading } = useDownloadCard(exportRef)
       </div>
     </UPageBody>
 
-    <!-- TODO: move offscreen after debugging -->
-    <div
-      ref="exportRef"
-      class="mt-8"
-    >
-      <DeckViewExport :deck="deckPassport" />
+    <div class="fixed -left-[9999px] top-0">
+      <DeckViewExport
+        ref="exportComponent"
+        :deck="deckPassport"
+      />
     </div>
   </UPage>
 </template>

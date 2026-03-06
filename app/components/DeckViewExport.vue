@@ -26,12 +26,19 @@ const totalTextLength = computed(() => {
   return (props.deck.description?.length ?? 0) + (props.deck.winCondition?.length ?? 0)
 })
 
+const titleScale = computed(() => {
+  const len = props.deck.title?.length ?? 0
+  if (len < 15) return 0.8
+  if (len > 40) return 0.7
+  return 1 - (len - 15) * 0.3 / 15
+})
+
 const fontScale = computed(() => {
   const len = totalTextLength.value
   if (len < 100) return 1
   if (len > 500) return 0.6
   // Linear interpolation between 1 and 0.6 for 100-500 chars
-  return 1 - (len - 100) * 0.4 / 2000
+  return 1 - (len - 100) * 0.4 / 1300
 })
 </script>
 
@@ -62,14 +69,19 @@ const fontScale = computed(() => {
               class="color-icon"
             />
           </div>
-          <h2 class="title">
+          <h2
+            class="title"
+            :style="{ fontSize: `${titleScale * 1.5}em` }"
+          >
             {{ deck.title }}
           </h2>
         </div>
 
-        <span class="bracket">
-          Bracket {{ deck.bracket }} — {{ bracketLabels[deck.bracket] ?? `Bracket ${deck.bracket}` }}
-        </span>
+        <div>
+          <span class="badge">
+            Bracket {{ deck.bracket }} — {{ bracketLabels[deck.bracket] ?? `Bracket ${deck.bracket}` }}
+          </span>
+        </div>
 
         <div v-if="deck.description">
           <p class="text">
@@ -87,16 +99,15 @@ const fontScale = computed(() => {
         </div>
       </div>
     </div>
-    <div class="spacer" />
   </div>
 </template>
 
 <style scoped>
 .card {
-  --card-width:672px;
-  --card-height:936px;
-  --padding: 24px;
-  --gap: 24px;
+  --card-width:250px;
+  --card-height:calc(var(--card-width)*1.40);
+  --padding: calc(var(--card-width)*0.10);
+  --gap: calc(var(--card-width)*0.05);
   /* Scryfall card aspect ratio: 672/936 (w/h)
      Solving: s = 2p + (s - 2p) * 672/936 + gap + content_width
      => s = 2p + (gap + content_width) * 936 / 264 */
@@ -105,21 +116,19 @@ const fontScale = computed(() => {
 
   width: var(--card-size);
   height: auto;
-  padding: var(--padding) var(--padding) 0 var(--padding);
+  padding: var(--padding);
   background: var(--ui-bg);
   border-radius: 12px;
   border: 1px solid var(--ui-border);
+  box-sizing: border-box;
   font-family: inherit;
 }
 
 .row {
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: var(--gap);
-}
-
-.spacer {
-  height: var(--padding);
 }
 
 .image-wrapper {
@@ -133,13 +142,14 @@ const fontScale = computed(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  margin: 0 auto;
 }
 
 .content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--gap);
   font-size: inherit;
 }
 
@@ -162,14 +172,13 @@ const fontScale = computed(() => {
   margin-top: .5em;
 }
 
-.bracket {
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 6px;
-  background: forestgreen;
-  width: fit-content;
+.badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--ui-primary), transparent 80%);
+  color: var(--ui-primary);
   font-size: .5em;
-  white-space: nowrap;
+  font-weight: 500;
 }
 
 .text {
@@ -180,7 +189,6 @@ const fontScale = computed(() => {
 
 .label {
   font-weight: 600;
-  color: var(--ui-text-dimmed);
-  margin: 0 0 4px 0;
+  font-size: .8em;
 }
 </style>

@@ -9,9 +9,12 @@ export function useDownloadCard(element: Ref<HTMLElement | null>) {
     loading.value = true
 
     try {
+      const rect = element.value.getBoundingClientRect()
       const dataUrl = await toPng(element.value, {
         pixelRatio: 2,
         skipFonts: true,
+        width: Math.ceil(rect.width),
+        height: Math.ceil(rect.height),
         fetchRequestInit: { mode: 'cors' }
       })
 
