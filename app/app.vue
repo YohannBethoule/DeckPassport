@@ -48,7 +48,11 @@ useSeoMeta({
     <UFooter>
       <template #left>
         <p class="text-sm text-muted">
-          Built by Yohann Bethoule • ©&nbsp;{{ new Date().getFullYear() }}
+          Built by <a
+            target="_blank"
+            href="https://www.yohannbethoule.com"
+            class="underline text-white"
+          >Yohann Bethoule</a> • ©&nbsp;{{ new Date().getFullYear() }}
         </p>
       </template>
 

@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { testDeck } from '~/composables/useTestDeck'
-
 const deckPassport = useDeckPassport()
 
-if (!deckPassport.value) {
+if (import.meta.dev && !deckPassport.value) {
+  const { testDeck } = await import('~/composables/useTestDeck')
   deckPassport.value = testDeck
 }
 
