@@ -5,6 +5,11 @@ const props = defineProps<{
   deck: InsertDeckWithCommander
 }>()
 
+const proxiedImageUrl = computed(() => {
+  if (!props.deck.imageUrl) return undefined
+  return `/api/image-proxy?url=${encodeURIComponent(props.deck.imageUrl)}`
+})
+
 const bracketLabels: Record<number, string> = {
   1: 'Exhibition',
   2: 'Core',
@@ -53,7 +58,7 @@ const fontScale = computed(() => {
         class="image-wrapper"
       >
         <img
-          :src="deck.imageUrl"
+          :src="proxiedImageUrl"
           :alt="deck.commanderName"
           class="image"
         >
