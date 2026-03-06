@@ -28,7 +28,7 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
 <template>
   <UCard class="max-w-2xl mx-auto py-2">
     <div class="flex flex-col gap-4">
-      <div class="flex flex-row gap-6">
+      <div class="flex flex-col sm:flew-row gap-6">
         <div
           v-if="deck.imageUrl"
           class="flex-1 min-w-0"

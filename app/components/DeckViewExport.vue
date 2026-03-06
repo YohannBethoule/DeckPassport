@@ -175,8 +175,8 @@ const fontScale = computed(() => {
 .badge {
   padding: 6px 12px;
   border-radius: 12px;
-  background: color-mix(in oklab, var(--ui-primary), transparent 80%);
-  color: var(--ui-primary);
+  background: color-mix(in oklab, var(--color-primary), transparent 80%);
+  color: var(--color-primary);
   font-size: .5em;
   font-weight: 500;
 }
