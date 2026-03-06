@@ -7,16 +7,14 @@ if (!deckPassport.value) {
   deckPassport.value = testDeck
 }
 
-const cardRef = ref<HTMLElement | null>(null)
-const { download, loading } = useDownloadCard(cardRef)
+const exportRef = ref<HTMLElement | null>(null)
+const { download, loading } = useDownloadCard(exportRef)
 </script>
 
 <template>
   <UPage v-if="deckPassport">
     <UPageBody>
-      <div ref="cardRef">
-        <DeckView :deck="deckPassport" />
-      </div>
+      <DeckView :deck="deckPassport" />
 
       <div class="flex justify-center mt-4">
         <UButton
@@ -27,5 +25,13 @@ const { download, loading } = useDownloadCard(cardRef)
         />
       </div>
     </UPageBody>
+
+    <!-- TODO: move offscreen after debugging -->
+    <div
+      ref="exportRef"
+      class="mt-8"
+    >
+      <DeckViewExport :deck="deckPassport" />
+    </div>
   </UPage>
 </template>

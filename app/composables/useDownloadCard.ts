@@ -7,8 +7,7 @@ export function useDownloadCard(element: Ref<HTMLElement | null>) {
     if (!element.value) return
 
     loading.value = true
-    const hiddenElements = element.value.querySelectorAll<HTMLElement>('.no-export')
-    hiddenElements.forEach(el => el.style.display = 'none')
+
     try {
       const dataUrl = await toPng(element.value, {
         pixelRatio: 2,
@@ -23,7 +22,6 @@ export function useDownloadCard(element: Ref<HTMLElement | null>) {
     } catch (error) {
       console.error('Failed to generate image:', error)
     } finally {
-      hiddenElements.forEach(el => el.style.display = '')
       loading.value = false
     }
   }
