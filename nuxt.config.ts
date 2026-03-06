@@ -6,6 +6,18 @@ export default defineNuxtConfig({
     enabled: true
   },
 
+  app: {
+    head: {
+      script: [
+        {
+          'src': 'https://cloud.umami.is/script.js',
+          'defer': true,
+          'data-website-id': '4435c17c-b344-4038-8d08-9537caaf234e'
+        }
+      ]
+    }
+  },
+
   css: ['~/assets/css/main.css'],
 
   routeRules: {

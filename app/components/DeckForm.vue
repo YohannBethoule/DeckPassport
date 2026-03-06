@@ -219,6 +219,7 @@ function onSubmit() {
         label="Generate Passport"
         icon="i-lucide-image"
         size="lg"
+        data-umami-event="generate-passport-click"
       />
     </div>
   </UForm>

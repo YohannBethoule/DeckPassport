@@ -7,12 +7,6 @@ import DeckPassportLogo from '~/assets/images/mtgdeckpassport.png'
     <UPageHero
       title="Create your EDH deck passport"
       description="Give your favorite commander decks a nice business card to introduce them."
-      :links="[{
-        label: 'Create New Deck',
-        to: '/new-deck',
-        trailingIcon: 'i-lucide-arrow-right',
-        size: 'xl'
-      }]"
       :ui="{
         container: 'gap-2 sm:gap-3 py-12 sm:py-12 lg:py-12'
       }"
@@ -23,6 +17,15 @@ import DeckPassportLogo from '~/assets/images/mtgdeckpassport.png'
         alt="logo"
         class="h-72 aspect-square mx-auto"
       >
+      <template #links>
+        <UButton
+          label="Create New Deck"
+          to="/new-deck"
+          trailing-icon="i-lucide-arrow-right"
+          size="xl"
+          data-umami-event="create-deck-click"
+        />
+      </template>
     </UPageHero>
     <UPageSection
       title="Share it with others"
