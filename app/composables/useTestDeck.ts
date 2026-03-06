@@ -6,7 +6,8 @@ export const testDeck: InsertDeckWithCommander = {
   colors: ['W', 'U', 'B', 'G'],
   title: 'Atraxa Superfriends',
   bracket: 3,
-  description: 'A planeswalker-focused deck that uses Atraxa\'s proliferate ability to accelerate loyalty counters. Plays a controlling game with board wipes and removal while building up an army of planeswalkers.',
+  // description: 'A planeswalker-focused deck that uses Atraxa\'s proliferate ability to accelerate loyalty counters. Plays a controlling game with board wipes and removal while building up an army of planeswalkers.',
+  description: 'A planeswalker-focused deck that uses Atraxa\'s.',
   winCondition: 'Ultimate multiple planeswalkers for overwhelming value, or win through Vorinclex + Doubling Season combo with any planeswalker ultimate.',
   coreCards: 'Doubling Season\nVorinclex, Monstrous Raider\nDeepglow Skate\nTeferi, Master of Time\nElspeth, Sun\'s Champion',
   deckListUrl: 'https://www.moxfield.com/decks/example-atraxa'

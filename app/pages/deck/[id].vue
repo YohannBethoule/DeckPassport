@@ -7,16 +7,15 @@ if (!deckPassport.value) {
   deckPassport.value = testDeck
 }
 
-const cardRef = ref<HTMLElement | null>(null)
-const { download, loading } = useDownloadCard(cardRef)
+const exportComponent = ref<{ $el: HTMLElement } | null>(null)
+const exportRef = computed(() => exportComponent.value?.$el ?? null)
+const { download, loading } = useDownloadCard(exportRef)
 </script>
 
 <template>
   <UPage v-if="deckPassport">
     <UPageBody>
-      <div ref="cardRef">
-        <DeckView :deck="deckPassport" />
-      </div>
+      <DeckView :deck="deckPassport" />
 
       <div class="flex justify-center mt-4">
         <UButton
@@ -27,5 +26,12 @@ const { download, loading } = useDownloadCard(cardRef)
         />
       </div>
     </UPageBody>
+
+    <div class="fixed -left-[9999px] top-0">
+      <DeckViewExport
+        ref="exportComponent"
+        :deck="deckPassport"
+      />
+    </div>
   </UPage>
 </template>
