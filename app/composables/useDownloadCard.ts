@@ -13,6 +13,7 @@ export function useDownloadCard(element: Ref<HTMLElement | null>) {
       const dataUrl = await toPng(element.value, {
         pixelRatio: 2,
         skipFonts: true,
+        includeQueryParams: true,
         width: Math.ceil(rect.width),
         height: Math.ceil(rect.height),
         fetchRequestInit: { mode: 'cors' }
