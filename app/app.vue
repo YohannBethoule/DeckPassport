@@ -51,7 +51,7 @@ useSeoMeta({
           Built by <a
             target="_blank"
             href="https://www.yohannbethoule.com"
-            class="underline text-white"
+            class="underline text-default"
           >Yohann Bethoule</a> • ©&nbsp;{{ new Date().getFullYear() }}
         </p>
       </template>
