@@ -31,12 +31,19 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
       <div class="flex flex-col sm:flex-row gap-6">
         <div
           v-if="deck.imageUrl"
-          class="flex-1 min-w-0"
+          class="relative flex-1 min-w-0"
+          :class="deck.partnerImageUrl ? 'mt-10 ml-8' : ''"
         >
+          <img
+            v-if="deck.partnerImageUrl"
+            :src="deck.partnerImageUrl"
+            :alt="deck.partnerCommanderName"
+            class="absolute -top-12 rounded-xl w-full"
+          >
           <img
             :src="deck.imageUrl"
             :alt="deck.commanderName"
-            class="h-full rounded-xl"
+            class="relative -left-10 rounded-xl w-full"
           >
         </div>
 

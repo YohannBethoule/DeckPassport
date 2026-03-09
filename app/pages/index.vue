@@ -43,9 +43,9 @@ import DeckPassportLogo from '~/assets/images/mtgdeckpassport.png'
     >
       <DevLogList
         :items="[
-          { title: 'Partner Commanders', description: 'Allow to create deck passport with two commanders', icon: 'i-lucide-users' },
           { title: 'User Account', description: 'Create your account and save your decks', icon: 'i-lucide-shield-user' },
-          { title: 'Alternative Prints', description: 'Choose the card printing you want for your commander', icon: 'i-lucide-sparkles' }
+          { title: 'Alternative Prints', description: 'Choose the card printing you want for your commanders', icon: 'i-lucide-sparkles' },
+          { title: 'Customization', description: 'Customize the appearance of the generated passport', icon: 'i-lucide-settings-2' }
         ]"
       />
     </UPageSection>

@@ -42,20 +42,20 @@ interface SearchResponse {
 
 const SCRYFALL_API = 'https://api.scryfall.com'
 
-export function useScryfall() {
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null
+function debouncedSearch(filter: string) {
+  let timer: ReturnType<typeof setTimeout> | null = null
 
-  async function searchCommanders(query: string): Promise<ScryfallCard[]> {
+  return async (query: string): Promise<ScryfallCard[]> => {
     if (query.length < 2) return []
 
-    if (debounceTimer) clearTimeout(debounceTimer)
+    if (timer) clearTimeout(timer)
 
     return new Promise((resolve) => {
-      debounceTimer = setTimeout(async () => {
+      timer = setTimeout(async () => {
         try {
           const response = await $fetch<SearchResponse>(
             `${SCRYFALL_API}/cards/search`,
-            { query: { q: `${query} is:commander`, order: 'name' } }
+            { query: { q: `${query} ${filter}`, order: 'name' } }
           )
           resolve(response.data)
         } catch {
@@ -64,6 +64,11 @@ export function useScryfall() {
       }, 300)
     })
   }
+}
+
+export function useScryfall() {
+  const searchCommanders = debouncedSearch('is:commander')
+  const searchBackgrounds = debouncedSearch('t:background')
 
   async function fetchCardByName(name: string): Promise<ScryfallCard | null> {
     try {
@@ -76,5 +81,5 @@ export function useScryfall() {
     }
   }
 
-  return { searchCommanders, fetchCardByName }
+  return { searchCommanders, searchBackgrounds, fetchCardByName }
 }

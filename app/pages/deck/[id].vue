@@ -25,8 +25,7 @@ const { download, loading } = useDownloadCard(exportRef)
         />
       </div>
     </UPageBody>
-
-    <div class="fixed -left-[9999px] top-0">
+    <div class="fixed -left-2499.75 top-0">
       <DeckViewExport
         ref="exportComponent"
         :deck="deckPassport"

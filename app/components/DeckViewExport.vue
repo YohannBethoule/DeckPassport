@@ -10,6 +10,13 @@ const proxiedImageUrl = computed(() => {
   return `/api/image-proxy?url=${encodeURIComponent(props.deck.imageUrl)}`
 })
 
+const proxiedPartnerImageUrl = computed(() => {
+  if (!props.deck.partnerImageUrl) return undefined
+  return `/api/image-proxy?url=${encodeURIComponent(props.deck.partnerImageUrl)}`
+})
+
+const hasPartner = computed(() => !!props.deck.partnerCommanderName)
+
 const bracketLabels: Record<number, string> = {
   1: 'Exhibition',
   2: 'Core',
@@ -55,12 +62,19 @@ const fontScale = computed(() => {
     <div class="row">
       <div
         v-if="deck.imageUrl"
-        class="image-wrapper"
+        class="image-stack"
+        :class="{ 'image-stack--duo': hasPartner }"
       >
+        <img
+          v-if="proxiedPartnerImageUrl"
+          :src="proxiedPartnerImageUrl"
+          :alt="deck.partnerCommanderName"
+          class="image image--partner"
+        >
         <img
           :src="proxiedImageUrl"
           :alt="deck.commanderName"
-          class="image"
+          class="image image--main"
         >
       </div>
 
@@ -136,18 +150,33 @@ const fontScale = computed(() => {
   gap: var(--gap);
 }
 
-.image-wrapper {
+.image-stack {
+  position: relative;
   width: var(--card-width);
   height: var(--card-height);
-  border-radius: calc(var(--card-size) / 25);
-  overflow: hidden;
+}
+
+.image-stack--duo {
+  margin-top: calc(var(--card-width) * 0.18);
+  margin-left: calc(var(--card-width) * 0.05);
 }
 
 .image {
-  width: 100%;
-  height: 100%;
+  width: var(--card-width);
+  height: var(--card-height);
   object-fit: contain;
-  margin: 0 auto;
+  border-radius: calc(var(--card-size) / 25);
+}
+
+.image--main {
+  position: relative;
+  left: calc(-1 * var(--card-width) * 0.10);
+}
+
+.image--partner {
+  position: absolute;
+  top: calc(-1 * var(--card-width) * 0.18);
+  left: 0;
 }
 
 .content {
