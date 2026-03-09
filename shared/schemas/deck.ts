@@ -29,14 +29,22 @@ const commanderFieldsRenamed = insertCommanderSchema
   .omit({ name: true })
   .extend({ commanderName: insertCommanderSchema.shape.name })
 
+const partnerFields = z.object({
+  partnerCommanderName: z.string().optional(),
+  partnerImageUrl: z.url('Must be a valid URL').optional(),
+  partnerColors: z.array(z.enum(['W', 'U', 'B', 'R', 'G', 'C'] as const)).optional()
+})
+
 export const insertDeckWithCommanderSchema = commanderFieldsRenamed
   .extend(insertDeckSchema.shape)
-  .transform(({ commanderName, imageUrl, colors, ...deck }) => ({
+  .extend(partnerFields.shape)
+  .transform(({ commanderName, imageUrl, colors, partnerCommanderName, partnerImageUrl, partnerColors, ...deck }) => ({
     commander: { name: commanderName, imageUrl, colors },
+    partner: partnerCommanderName ? { name: partnerCommanderName, imageUrl: partnerImageUrl, colors: partnerColors ?? [] } : undefined,
     deck
   }))
 
-export const insertDeckWithCommanderFormSchema = commanderFieldsRenamed.extend(insertDeckSchema.shape)
+export const insertDeckWithCommanderFormSchema = commanderFieldsRenamed.extend(insertDeckSchema.shape).extend(partnerFields.shape)
 
 export type InsertDeck = z.infer<typeof insertDeckSchema>
 export type SelectDeck = z.infer<typeof selectDeckSchema>

@@ -12,15 +12,53 @@ const form = reactive({
   description: '',
   winCondition: '',
   coreCards: '',
-  deckListUrl: ''
+  deckListUrl: '',
+  partnerCommanderName: undefined as string | undefined,
+  partnerImageUrl: undefined as string | undefined,
+  partnerColors: undefined as ('W' | 'U' | 'B' | 'R' | 'G' | 'C')[] | undefined
 })
 
-const { searchCommanders } = useScryfall()
+type PartnerMode = false | 'partner' | 'background'
+const partnerMode = ref<PartnerMode>(false)
+
+const { searchCommanders, searchBackgrounds } = useScryfall()
 const commanderResults = ref<ScryfallCard[]>([])
+const partnerResults = ref<ScryfallCard[]>([])
 const selectedCard = ref<ScryfallCard | null>(null)
+const selectedPartnerCard = ref<ScryfallCard | null>(null)
 
 async function onCommanderSearch(query: string) {
   commanderResults.value = await searchCommanders(query)
+}
+
+async function onPartnerSearch(query: string) {
+  const search = partnerMode.value === 'background' ? searchBackgrounds : searchCommanders
+  partnerResults.value = await search(query)
+}
+
+function mergeColors() {
+  const mainColors = selectedCard.value?.color_identity.filter(
+    (c): c is 'W' | 'U' | 'B' | 'R' | 'G' => ['W', 'U', 'B', 'R', 'G'].includes(c)
+  ) ?? []
+  const partnerColors = selectedPartnerCard.value?.color_identity.filter(
+    (c): c is 'W' | 'U' | 'B' | 'R' | 'G' => ['W', 'U', 'B', 'R', 'G'].includes(c)
+  ) ?? []
+  const merged = [...new Set([...mainColors, ...partnerColors])]
+  form.colors = merged.length ? merged : ['C']
+}
+
+function getDefaultTitle() {
+  const mainName = selectedCard.value?.name
+  const partnerName = selectedPartnerCard.value?.name
+  if (mainName && partnerName) return `${mainName} & ${partnerName}`
+  if (mainName) return mainName
+  return ''
+}
+
+function updateTitleIfDefault(previousDefault: string) {
+  if (!form.title || form.title === previousDefault) {
+    form.title = getDefaultTitle()
+  }
 }
 
 function onCommanderSelect(name: string) {
@@ -28,21 +66,70 @@ function onCommanderSelect(name: string) {
   const card = commanderResults.value.find(c => c.name === name)
   if (!card) return
 
+  const prevDefault = getDefaultTitle()
   selectedCard.value = card
-  if (!form.title) {
-    form.title = card.name
-  }
   const imageUrl = getCardImageUri(card)
   if (imageUrl) {
     form.imageUrl = imageUrl
   }
-  form.colors = card.color_identity.filter(
+  mergeColors()
+  updateTitleIfDefault(prevDefault)
+}
+
+function onPartnerSelect(name: string) {
+  if (!name) return
+  const card = partnerResults.value.find(c => c.name === name)
+  if (!card) return
+
+  const prevDefault = getDefaultTitle()
+  selectedPartnerCard.value = card
+  form.partnerCommanderName = card.name
+  const imageUrl = getCardImageUri(card)
+  if (imageUrl) {
+    form.partnerImageUrl = imageUrl
+  }
+  form.partnerColors = card.color_identity.filter(
     (c): c is 'W' | 'U' | 'B' | 'R' | 'G' => ['W', 'U', 'B', 'R', 'G'].includes(c)
   )
-  if (!form.colors?.length) {
-    form.colors = ['C']
+  if (!form.partnerColors.length) {
+    form.partnerColors = ['C']
+  }
+  mergeColors()
+  updateTitleIfDefault(prevDefault)
+}
+
+function clearPartner() {
+  const prevDefault = getDefaultTitle()
+  partnerMode.value = false
+  form.partnerCommanderName = undefined
+  form.partnerImageUrl = undefined
+  form.partnerColors = undefined
+  selectedPartnerCard.value = null
+  partnerResults.value = []
+  mergeColors()
+  updateTitleIfDefault(prevDefault)
+}
+
+function setPartnerMode(mode: 'partner' | 'background') {
+  if (partnerMode.value === mode) {
+    clearPartner()
+  } else {
+    clearPartner()
+    partnerMode.value = mode
   }
 }
+
+const partnerLabel = computed(() => {
+  return partnerMode.value === 'background' ? 'Background Name' : 'Partner Commander Name'
+})
+
+const partnerImageLabel = computed(() => {
+  return partnerMode.value === 'background' ? 'Background Image URL' : 'Partner Image URL'
+})
+
+const partnerPlaceholder = computed(() => {
+  return partnerMode.value === 'background' ? 'e.g. Far Traveler' : 'e.g. Tymna the Weaver'
+})
 
 const bracketOptions = [
   { label: 'Bracket 1 - Exhibition', value: 1 },
@@ -83,23 +170,11 @@ function onSubmit() {
     >
       <UInputMenu
         v-model="form.commanderName"
-        :items="commanderResults.map(c => c.name)"
+        :items="commanderResults.map((c: ScryfallCard) => c.name)"
         placeholder="e.g. Atraxa, Praetors' Voice"
         class="w-full"
         @update:search-term="onCommanderSearch"
         @update:model-value="onCommanderSelect"
-      />
-    </UFormField>
-
-    <UFormField
-      label="Deck Title"
-      name="title"
-      required
-    >
-      <UInput
-        v-model="form.title"
-        placeholder="e.g. Songs of Bombadil"
-        class="w-full"
       />
     </UFormField>
 
@@ -110,6 +185,64 @@ function onSubmit() {
       <UInput
         v-model="form.imageUrl"
         placeholder="https://cards.scryfall.io/..."
+        class="w-full"
+      />
+    </UFormField>
+
+    <div class="flex gap-2">
+      <UButton
+        :label="partnerMode === 'partner' ? 'Remove Partner' : 'Add Partner'"
+        :icon="partnerMode === 'partner' ? 'i-lucide-user-minus' : 'i-lucide-user-plus'"
+        :variant="partnerMode === 'partner' ? 'soft' : 'outline'"
+        size="sm"
+        :disabled="partnerMode === 'background'"
+        @click="setPartnerMode('partner')"
+      />
+      <UButton
+        :label="partnerMode === 'background' ? 'Remove Background' : 'Add Background'"
+        :icon="partnerMode === 'background' ? 'i-lucide-image-minus' : 'i-lucide-image-plus'"
+        :variant="partnerMode === 'background' ? 'soft' : 'outline'"
+        size="sm"
+        :disabled="partnerMode === 'partner'"
+        @click="setPartnerMode('background')"
+      />
+    </div>
+
+    <template v-if="partnerMode">
+      <UFormField
+        :label="partnerLabel"
+        name="partnerCommanderName"
+      >
+        <UInputMenu
+          v-model="form.partnerCommanderName"
+          :items="partnerResults.map((c: ScryfallCard) => c.name)"
+          :placeholder="partnerPlaceholder"
+          class="w-full"
+          @update:search-term="onPartnerSearch"
+          @update:model-value="onPartnerSelect"
+        />
+      </UFormField>
+
+      <UFormField
+        :label="partnerImageLabel"
+        name="partnerImageUrl"
+      >
+        <UInput
+          v-model="form.partnerImageUrl"
+          placeholder="https://cards.scryfall.io/..."
+          class="w-full"
+        />
+      </UFormField>
+    </template>
+
+    <UFormField
+      label="Deck Title"
+      name="title"
+      required
+    >
+      <UInput
+        v-model="form.title"
+        placeholder="e.g. Songs of Bombadil"
         class="w-full"
       />
     </UFormField>
