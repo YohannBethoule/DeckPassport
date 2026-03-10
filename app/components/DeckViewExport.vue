@@ -10,12 +10,15 @@ const proxiedImageUrl = computed(() => {
   return `/api/image-proxy?url=${encodeURIComponent(props.deck.imageUrl)}`
 })
 
-const proxiedPartnerImageUrl = computed(() => {
-  if (!props.deck.partnerImageUrl) return undefined
-  return `/api/image-proxy?url=${encodeURIComponent(props.deck.partnerImageUrl)}`
+const secondaryImageUrl = computed(() => props.deck.partnerImageUrl ?? props.deck.backgroundImageUrl)
+const secondaryName = computed(() => props.deck.partnerCommanderName ?? props.deck.backgroundName)
+
+const proxiedSecondaryImageUrl = computed(() => {
+  if (!secondaryImageUrl.value) return undefined
+  return `/api/image-proxy?url=${encodeURIComponent(secondaryImageUrl.value)}`
 })
 
-const hasPartner = computed(() => !!props.deck.partnerCommanderName)
+const hasSecondary = computed(() => !!secondaryName.value)
 
 const bracketLabels: Record<number, string> = {
   1: 'Exhibition',
@@ -63,12 +66,12 @@ const fontScale = computed(() => {
       <div
         v-if="deck.imageUrl"
         class="image-stack"
-        :class="{ 'image-stack--duo': hasPartner }"
+        :class="{ 'image-stack--duo': hasSecondary }"
       >
         <img
-          v-if="proxiedPartnerImageUrl"
-          :src="proxiedPartnerImageUrl"
-          :alt="deck.partnerCommanderName"
+          v-if="proxiedSecondaryImageUrl"
+          :src="proxiedSecondaryImageUrl"
+          :alt="secondaryName"
           class="image image--partner"
         >
         <img
