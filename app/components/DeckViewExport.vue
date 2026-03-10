@@ -74,7 +74,8 @@ const fontScale = computed(() => {
         <img
           :src="proxiedImageUrl"
           :alt="deck.commanderName"
-          class="image image--main"
+          class="image"
+          :class="{ 'image--main': hasPartner }"
         >
       </div>
 
