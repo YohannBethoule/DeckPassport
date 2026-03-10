@@ -43,7 +43,8 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
           <img
             :src="deck.imageUrl"
             :alt="deck.commanderName"
-            class="relative -left-10 rounded-xl w-full"
+            class="rounded-xl w-full"
+            :class="deck.partnerImageUrl ? 'relative -left-10' : ''"
           >
         </div>
 
