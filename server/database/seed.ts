@@ -1,8 +1,10 @@
 import 'dotenv/config'
-import { drizzle } from 'drizzle-orm/node-postgres'
+import { neon } from '@neondatabase/serverless'
+import { drizzle } from 'drizzle-orm/neon-http'
 import { brackets } from './schema/bracket'
 
-const db = drizzle({ connection: process.env.DATABASE_URL! })
+const sql = neon(process.env.DATABASE_URL!)
+const db = drizzle({ client: sql })
 
 const bracketData = [
   { id: 1, name: 'Exhibition', description: 'Decks built around a theme or gimmick rather than winning. No one wins or loose before turn 9.' },
