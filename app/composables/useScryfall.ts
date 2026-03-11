@@ -28,6 +28,9 @@ export interface ScryfallCard {
   keywords: string[]
   legalities: Record<string, string>
   scryfall_uri: string
+  prints_search_uri?: string
+  set_name?: string
+  collector_number?: string
 }
 
 export function getCardImageUri(card: ScryfallCard, size: keyof ScryfallImageUris = 'normal'): string | undefined {
@@ -81,5 +84,16 @@ export function useScryfall() {
     }
   }
 
-  return { searchCommanders, searchBackgrounds, fetchCardByName }
+  async function fetchPrints(printsSearchUri: string): Promise<ScryfallCard[]> {
+    try {
+      const response = await $fetch<SearchResponse>(printsSearchUri, {
+        query: { unique: 'prints', order: 'released' }
+      })
+      return response.data
+    } catch {
+      return []
+    }
+  }
+
+  return { searchCommanders, searchBackgrounds, fetchCardByName, fetchPrints }
 }

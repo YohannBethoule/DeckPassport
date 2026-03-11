@@ -15,6 +15,20 @@
       "when": 1773231380999,
       "tag": "0001_sleepy_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773237152596,
+      "tag": "0002_overjoyed_wallop",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773239081232,
+      "tag": "0003_light_lord_hawal",
+      "breakpoints": true
     }
   ]
 }

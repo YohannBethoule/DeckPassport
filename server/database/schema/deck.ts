@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { integer, pgTable, primaryKey, serial, text, timestamp } from 'drizzle-orm/pg-core'
 import { archetypes } from './archetype'
 import { backgrounds } from './background'
 import { brackets } from './bracket'
@@ -26,8 +26,36 @@ export const decksToArchetypes = pgTable('decks_to_archetypes', {
   order: integer('order').notNull()
 })
 
+export const decksToCommanderPrints = pgTable('decks_to_commander_prints', {
+  deckId: integer('deck_id').notNull().references(() => decks.id, { onDelete: 'cascade' }),
+  commanderId: integer('commander_id').notNull().references(() => commanders.id),
+  commanderPrintUri: text('commander_print_uri').notNull()
+}, table => [
+  primaryKey({ columns: [table.deckId, table.commanderId] })
+])
+
+export const decksToCommanderPrintsRelations = relations(decksToCommanderPrints, ({ one }) => ({
+  deck: one(decks, { fields: [decksToCommanderPrints.deckId], references: [decks.id] }),
+  commander: one(commanders, { fields: [decksToCommanderPrints.commanderId], references: [commanders.id] })
+}))
+
+export const decksToBackgroundPrints = pgTable('decks_to_background_prints', {
+  deckId: integer('deck_id').notNull().references(() => decks.id, { onDelete: 'cascade' }),
+  backgroundId: integer('background_id').notNull().references(() => backgrounds.id),
+  backgroundPrintUri: text('background_print_uri').notNull()
+}, table => [
+  primaryKey({ columns: [table.deckId, table.backgroundId] })
+])
+
+export const decksToBackgroundPrintsRelations = relations(decksToBackgroundPrints, ({ one }) => ({
+  deck: one(decks, { fields: [decksToBackgroundPrints.deckId], references: [decks.id] }),
+  background: one(backgrounds, { fields: [decksToBackgroundPrints.backgroundId], references: [backgrounds.id] })
+}))
+
 export const decksRelations = relations(decks, ({ one, many }) => ({
   archetypes: many(decksToArchetypes),
+  commanderPrints: many(decksToCommanderPrints),
+  backgroundPrints: many(decksToBackgroundPrints),
   bracket: one(brackets, { fields: [decks.bracketId], references: [brackets.id] }),
   commander: one(commanders, { fields: [decks.commanderId], references: [commanders.id], relationName: 'commander' }),
   partnerCommander: one(commanders, { fields: [decks.partnerCommanderId], references: [commanders.id], relationName: 'partnerCommander' }),

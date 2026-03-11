@@ -19,7 +19,9 @@ export default defineEventHandler(async (event) => {
       bracket: true,
       commander: true,
       partnerCommander: true,
-      background: true
+      background: true,
+      commanderPrints: true,
+      backgroundPrints: true
     }
   })
 

@@ -1,0 +1,22 @@
+info:
+  name: Find commanders
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: https://api.scryfall.com/cards/search?q=Tom&order=name
+  params:
+    - name: q
+      value: Tom
+      type: query
+    - name: order
+      value: name
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

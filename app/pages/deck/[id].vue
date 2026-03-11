@@ -10,13 +10,20 @@ if (!rawDeck.value) {
   throw createError({ statusCode: 404, statusMessage: 'Deck not found' })
 }
 
+function getCommanderPrintUri(d: NonNullable<typeof rawDeck.value>, commanderId: number): string | undefined {
+  return d.commanderPrints?.find(p => p.commanderId === commanderId)?.commanderPrintUri
+}
+
 const deck = computed<InsertDeckWithCommander | null>(() => {
   const d = rawDeck.value
   if (!d) return null
 
+  const commanderPrintUri = getCommanderPrintUri(d, d.commander.id)
+  const partnerPrintUri = d.partnerCommander ? getCommanderPrintUri(d, d.partnerCommander.id) : undefined
+
   return {
     commanderName: d.commander.name,
-    imageUrl: d.commander.imageUrl ?? '',
+    imageUrl: commanderPrintUri ?? d.commander.imageUrl ?? '',
     colors: d.commander.colors as ManaColor[],
     title: d.title,
     bracket: d.bracket.id,
@@ -25,10 +32,10 @@ const deck = computed<InsertDeckWithCommander | null>(() => {
     coreCards: d.coreCards ?? '',
     deckListUrl: d.deckListUrl ?? '',
     partnerCommanderName: d.partnerCommander?.name,
-    partnerImageUrl: d.partnerCommander?.imageUrl ?? undefined,
+    partnerImageUrl: partnerPrintUri ?? d.partnerCommander?.imageUrl ?? undefined,
     partnerColors: d.partnerCommander?.colors as ManaColor[] | undefined,
     backgroundName: d.background?.name,
-    backgroundImageUrl: d.background?.imageUrl ?? undefined,
+    backgroundImageUrl: (d.background ? d.backgroundPrints?.find(p => p.backgroundId === d.background!.id)?.backgroundPrintUri : undefined) ?? d.background?.imageUrl ?? undefined,
     archetypes: d.archetypes?.map(a => a.archetypeId) ?? []
   }
 })

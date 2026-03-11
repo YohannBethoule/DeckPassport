@@ -19,7 +19,10 @@ const form = reactive({
   partnerImageUrl: undefined as string | undefined,
   partnerColors: undefined as ManaColor[] | undefined,
   backgroundName: undefined as string | undefined,
-  backgroundImageUrl: undefined as string | undefined
+  backgroundImageUrl: undefined as string | undefined,
+  commanderDefaultImageUrl: undefined as string | undefined,
+  partnerDefaultImageUrl: undefined as string | undefined,
+  backgroundDefaultImageUrl: undefined as string | undefined
 })
 
 const PARTNER = 'partner' as const
@@ -27,11 +30,15 @@ const BACKGROUND = 'background' as const
 type PartnerMode = false | typeof PARTNER | typeof BACKGROUND
 const partnerMode = ref<PartnerMode>(false)
 
-const { searchCommanders, searchBackgrounds } = useScryfall()
+const { searchCommanders, searchBackgrounds, fetchPrints } = useScryfall()
 const commanderResults = ref<ScryfallCard[]>([])
 const partnerResults = ref<ScryfallCard[]>([])
 const selectedCard = ref<ScryfallCard | null>(null)
 const selectedPartnerCard = ref<ScryfallCard | null>(null)
+const commanderPrints = ref<ScryfallCard[]>([])
+const partnerPrints = ref<ScryfallCard[]>([])
+const loadingCommanderPrints = ref(false)
+const loadingPartnerPrints = ref(false)
 
 async function onCommanderSearch(query: string) {
   commanderResults.value = await searchCommanders(query)
@@ -67,7 +74,7 @@ function updateTitleIfDefault(previousDefault: string) {
   }
 }
 
-function onCommanderSelect(name: string) {
+async function onCommanderSelect(name: string) {
   if (!name) return
   const card = commanderResults.value.find(c => c.name === name)
   if (!card) return
@@ -77,12 +84,20 @@ function onCommanderSelect(name: string) {
   const imageUrl = getCardImageUri(card)
   if (imageUrl) {
     form.imageUrl = imageUrl
+    form.commanderDefaultImageUrl = imageUrl
   }
   mergeColors()
   updateTitleIfDefault(prevDefault)
+
+  commanderPrints.value = []
+  if (card.prints_search_uri) {
+    loadingCommanderPrints.value = true
+    commanderPrints.value = await fetchPrints(card.prints_search_uri)
+    loadingCommanderPrints.value = false
+  }
 }
 
-function onPartnerSelect(name: string) {
+async function onPartnerSelect(name: string) {
   if (!name) return
   const card = partnerResults.value.find(c => c.name === name)
   if (!card) return
@@ -95,11 +110,13 @@ function onPartnerSelect(name: string) {
     form.backgroundName = card.name
     if (imageUrl) {
       form.backgroundImageUrl = imageUrl
+      form.backgroundDefaultImageUrl = imageUrl
     }
   } else {
     form.partnerCommanderName = card.name
     if (imageUrl) {
       form.partnerImageUrl = imageUrl
+      form.partnerDefaultImageUrl = imageUrl
     }
     form.partnerColors = card.color_identity.filter(
       (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
@@ -110,6 +127,30 @@ function onPartnerSelect(name: string) {
   }
   mergeColors()
   updateTitleIfDefault(prevDefault)
+
+  partnerPrints.value = []
+  if (card.prints_search_uri) {
+    loadingPartnerPrints.value = true
+    partnerPrints.value = await fetchPrints(card.prints_search_uri)
+    loadingPartnerPrints.value = false
+  }
+}
+
+function selectCommanderPrint(print: ScryfallCard) {
+  const imageUrl = getCardImageUri(print)
+  if (imageUrl) {
+    form.imageUrl = imageUrl
+  }
+}
+
+function selectPartnerPrint(print: ScryfallCard) {
+  const imageUrl = getCardImageUri(print)
+  if (!imageUrl) return
+  if (partnerMode.value === BACKGROUND) {
+    form.backgroundImageUrl = imageUrl
+  } else {
+    form.partnerImageUrl = imageUrl
+  }
 }
 
 function clearPartner() {
@@ -118,10 +159,13 @@ function clearPartner() {
   form.partnerCommanderName = undefined
   form.partnerImageUrl = undefined
   form.partnerColors = undefined
+  form.partnerDefaultImageUrl = undefined
   form.backgroundName = undefined
   form.backgroundImageUrl = undefined
+  form.backgroundDefaultImageUrl = undefined
   selectedPartnerCard.value = null
   partnerResults.value = []
+  partnerPrints.value = []
   mergeColors()
   updateTitleIfDefault(prevDefault)
 }
@@ -191,13 +235,15 @@ function onSubmit() {
     </UFormField>
 
     <UFormField
-      label="Commander Image URL"
+      v-if="commanderPrints.length > 0 || loadingCommanderPrints"
+      label="Select Print"
       name="imageUrl"
     >
-      <UInput
-        v-model="form.imageUrl"
-        placeholder="https://cards.scryfall.io/..."
-        class="w-full"
+      <PrintSelector
+        :prints="commanderPrints"
+        :loading="loadingCommanderPrints"
+        :selected-image-url="form.imageUrl"
+        @select="selectCommanderPrint"
       />
     </UFormField>
 
@@ -236,13 +282,15 @@ function onSubmit() {
       </UFormField>
 
       <UFormField
-        label="Partner Image URL"
+        v-if="partnerPrints.length > 0 || loadingPartnerPrints"
+        label="Select Print"
         name="partnerImageUrl"
       >
-        <UInput
-          v-model="form.partnerImageUrl"
-          placeholder="https://cards.scryfall.io/..."
-          class="w-full"
+        <PrintSelector
+          :prints="partnerPrints"
+          :loading="loadingPartnerPrints"
+          :selected-image-url="form.partnerImageUrl"
+          @select="selectPartnerPrint"
         />
       </UFormField>
     </template>
@@ -263,13 +311,15 @@ function onSubmit() {
       </UFormField>
 
       <UFormField
-        label="Background Image URL"
+        v-if="partnerPrints.length > 0 || loadingPartnerPrints"
+        label="Select Print"
         name="backgroundImageUrl"
       >
-        <UInput
-          v-model="form.backgroundImageUrl"
-          placeholder="https://cards.scryfall.io/..."
-          class="w-full"
+        <PrintSelector
+          :prints="partnerPrints"
+          :loading="loadingPartnerPrints"
+          :selected-image-url="form.backgroundImageUrl"
+          @select="selectPartnerPrint"
         />
       </UFormField>
     </template>
