@@ -27,6 +27,45 @@ const secondaryImageUrl = computed(() => props.deck.partnerImageUrl ?? props.dec
 const secondaryName = computed(() => props.deck.partnerCommanderName ?? props.deck.backgroundName)
 
 const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracket ${props.deck.bracket}`)
+
+function lerp(min: number, max: number, t: number) {
+  return min + (max - min) * Math.min(Math.max(t, 0), 1)
+}
+
+const titleScale = computed(() => {
+  const len = totalTextLength.value
+  const shortThreshold = 15
+  const longThreshold = 40
+  const minScale = 1.5
+  const maxScale = 2.5
+
+  if (len < shortThreshold) return maxScale
+  if (len > longThreshold) return minScale
+  const t = (len - shortThreshold) / (longThreshold - shortThreshold)
+  return lerp(maxScale, minScale, t)
+})
+
+const totalTextLength = computed(() => {
+  return (props.deck.description?.length ?? 0) + (props.deck.winCondition?.length ?? 0)
+})
+
+const fontScale = computed(() => {
+  const len = totalTextLength.value
+  const shortThreshold = 50
+  const longThreshold = 350
+  let minScale = 0.7
+  let maxScale = 1.4
+
+  if (secondaryImageUrl.value) {
+    minScale += 0.2
+    maxScale += 0.1
+  }
+
+  if (len < shortThreshold) return maxScale
+  if (len > longThreshold) return minScale
+  const t = (len - shortThreshold) / (longThreshold - shortThreshold)
+  return lerp(maxScale, minScale, t)
+})
 </script>
 
 <template>
@@ -54,6 +93,7 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
 
         <div
           class="flex-1 min-w-0 space-y-4"
+          :style="{ fontSize: `${fontScale}rem` }"
         >
           <div>
             <div class="flex items-center gap-1.5 mt-1">
@@ -64,7 +104,10 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
                 class="size-5"
               />
             </div>
-            <h2 class="text-2xl font-bold">
+            <h2
+              class="font-bold leading-tight mt-1"
+              :style="{ fontSize: `${titleScale * 1.5}rem` }"
+            >
               {{ deck.title }}
             </h2>
           </div>
@@ -74,6 +117,7 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
               v-if="!!archetypeNames && archetypeNames.length > 0"
               size="lg"
               variant="outline"
+              :style="{ fontSize: `${fontScale}rem` }"
             >
               <span
                 v-for="name in archetypeNames"
@@ -83,6 +127,7 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
             <UBadge
               size="lg"
               variant="subtle"
+              :style="{ fontSize: `${fontScale}rem` }"
             >
               <span class="whitespace-nowrap">Bracket {{ deck.bracket }} — {{ bracketLabel }}</span>
             </UBadge>
@@ -92,16 +137,16 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
             v-if="deck.description"
             class="space-y-1"
           >
-            <p class="text-sm whitespace-pre-line">
+            <p class="whitespace-pre-line">
               {{ deck.description }}
             </p>
           </div>
 
           <div class="space-y-1">
-            <h3 class="text-sm font-semibold text-dimmed">
+            <h3 class="font-semibold text-dimmed">
               How does it win ?
             </h3>
-            <p class="text-sm whitespace-pre-line">
+            <p class="whitespace-pre-line">
               {{ deck.winCondition }}
             </p>
           </div>
