@@ -2,7 +2,7 @@
 import { DESCRIPTION_MAX_LENGTH, type InsertDeckWithCommander } from '#shared/schemas/deck'
 import { insertDeckWithCommanderFormSchema } from '#shared/schemas/deck'
 import { type ManaColor, type ChromaticColor, CHROMATIC_COLORS } from '#shared/schemas/commander'
-import { type ScryfallCard, getCardImageUri } from '~/composables/useScryfall'
+import type { ScryfallCard } from '~/composables/useScryfall'
 
 const form = reactive({
   commanderName: '',
@@ -25,126 +25,86 @@ const form = reactive({
   backgroundDefaultImageUrl: undefined as string | undefined
 })
 
-const PARTNER = 'partner' as const
-const BACKGROUND = 'background' as const
-type PartnerMode = false | typeof PARTNER | typeof BACKGROUND
 const partnerMode = ref<PartnerMode>(false)
 
-const { searchCommanders, searchBackgrounds, fetchPrints } = useScryfall()
-const commanderResults = ref<ScryfallCard[]>([])
-const partnerResults = ref<ScryfallCard[]>([])
-const selectedCard = ref<ScryfallCard | null>(null)
-const selectedPartnerCard = ref<ScryfallCard | null>(null)
-const commanderPrints = ref<ScryfallCard[]>([])
-const partnerPrints = ref<ScryfallCard[]>([])
-const loadingCommanderPrints = ref(false)
-const loadingPartnerPrints = ref(false)
+const { searchCommanders, searchBackgrounds } = useScryfall()
 
-async function onCommanderSearch(query: string) {
-  commanderResults.value = await searchCommanders(query)
-}
-
-async function onPartnerSearch(query: string) {
-  const search = partnerMode.value === BACKGROUND ? searchBackgrounds : searchCommanders
-  partnerResults.value = await search(query)
-}
-
-function mergeColors() {
-  const mainColors = selectedCard.value?.color_identity.filter(
+function mergeColors(mainCard: ScryfallCard | null, partnerCard: ScryfallCard | null) {
+  const mainColors = mainCard?.color_identity.filter(
     (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
   ) ?? []
-  const partnerColors = selectedPartnerCard.value?.color_identity.filter(
+  const partnerColors = partnerCard?.color_identity.filter(
     (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
   ) ?? []
   const merged = [...new Set([...mainColors, ...partnerColors])]
   form.colors = merged.length ? merged : ['C']
 }
 
-function getDefaultTitle() {
-  const mainName = selectedCard.value?.name
-  const partnerName = selectedPartnerCard.value?.name
+function getDefaultTitle(mainCard: ScryfallCard | null, partnerCard: ScryfallCard | null) {
+  const mainName = mainCard?.name
+  const partnerName = partnerCard?.name
   if (mainName && partnerName) return `${mainName} & ${partnerName}`
   if (mainName) return mainName
   return ''
 }
 
-function updateTitleIfDefault(previousDefault: string) {
+function updateTitleIfDefault(previousDefault: string, mainCard: ScryfallCard | null, partnerCard: ScryfallCard | null) {
   if (!form.title || form.title === previousDefault) {
-    form.title = getDefaultTitle()
+    form.title = getDefaultTitle(mainCard, partnerCard)
   }
 }
 
-async function onCommanderSelect(name: string) {
-  if (!name) return
-  const card = commanderResults.value.find(c => c.name === name)
-  if (!card) return
-
-  const prevDefault = getDefaultTitle()
-  selectedCard.value = card
-  const imageUrl = getCardImageUri(card)
-  if (imageUrl) {
-    form.imageUrl = imageUrl
-    form.commanderDefaultImageUrl = imageUrl
-  }
-  mergeColors()
-  updateTitleIfDefault(prevDefault)
-
-  commanderPrints.value = []
-  if (card.prints_search_uri) {
-    loadingCommanderPrints.value = true
-    commanderPrints.value = await fetchPrints(card.prints_search_uri)
-    loadingCommanderPrints.value = false
-  }
-}
-
-async function onPartnerSelect(name: string) {
-  if (!name) return
-  const card = partnerResults.value.find(c => c.name === name)
-  if (!card) return
-
-  const prevDefault = getDefaultTitle()
-  selectedPartnerCard.value = card
-  const imageUrl = getCardImageUri(card)
-
-  if (partnerMode.value === BACKGROUND) {
-    form.backgroundName = card.name
+const commander = useCardSearch({
+  searchFn: searchCommanders,
+  onSelect(card, imageUrl) {
+    const prevDefault = getDefaultTitle(commander.selectedCard.value, partner.selectedCard.value)
     if (imageUrl) {
-      form.backgroundImageUrl = imageUrl
-      form.backgroundDefaultImageUrl = imageUrl
+      form.imageUrl = imageUrl
+      form.commanderDefaultImageUrl = imageUrl
     }
-  } else {
-    form.partnerCommanderName = card.name
-    if (imageUrl) {
-      form.partnerImageUrl = imageUrl
-      form.partnerDefaultImageUrl = imageUrl
-    }
-    form.partnerColors = card.color_identity.filter(
-      (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
-    )
-    if (!form.partnerColors.length) {
-      form.partnerColors = ['C']
-    }
+    mergeColors(card, partner.selectedCard.value)
+    updateTitleIfDefault(prevDefault, card, partner.selectedCard.value)
   }
-  mergeColors()
-  updateTitleIfDefault(prevDefault)
+})
 
-  partnerPrints.value = []
-  if (card.prints_search_uri) {
-    loadingPartnerPrints.value = true
-    partnerPrints.value = await fetchPrints(card.prints_search_uri)
-    loadingPartnerPrints.value = false
+const partner = useCardSearch({
+  searchFn: (query: string) => {
+    const search = partnerMode.value === BACKGROUND ? searchBackgrounds : searchCommanders
+    return search(query)
+  },
+  onSelect(card, imageUrl) {
+    const prevDefault = getDefaultTitle(commander.selectedCard.value, null)
+    if (partnerMode.value === BACKGROUND) {
+      form.backgroundName = card.name
+      if (imageUrl) {
+        form.backgroundImageUrl = imageUrl
+        form.backgroundDefaultImageUrl = imageUrl
+      }
+    } else {
+      form.partnerCommanderName = card.name
+      if (imageUrl) {
+        form.partnerImageUrl = imageUrl
+        form.partnerDefaultImageUrl = imageUrl
+      }
+      form.partnerColors = card.color_identity.filter(
+        (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
+      )
+      if (!form.partnerColors.length) {
+        form.partnerColors = ['C']
+      }
+    }
+    mergeColors(commander.selectedCard.value, card)
+    updateTitleIfDefault(prevDefault, commander.selectedCard.value, card)
   }
+})
+
+function onCommanderPrintSelect(print: ScryfallCard) {
+  const imageUrl = commander.selectPrint(print)
+  if (imageUrl) form.imageUrl = imageUrl
 }
 
-function selectCommanderPrint(print: ScryfallCard) {
-  const imageUrl = getCardImageUri(print)
-  if (imageUrl) {
-    form.imageUrl = imageUrl
-  }
-}
-
-function selectPartnerPrint(print: ScryfallCard) {
-  const imageUrl = getCardImageUri(print)
+function onPartnerPrintSelect(print: ScryfallCard) {
+  const imageUrl = partner.selectPrint(print)
   if (!imageUrl) return
   if (partnerMode.value === BACKGROUND) {
     form.backgroundImageUrl = imageUrl
@@ -153,9 +113,9 @@ function selectPartnerPrint(print: ScryfallCard) {
   }
 }
 
-function clearPartner() {
-  const prevDefault = getDefaultTitle()
-  partnerMode.value = false
+function onTogglePartner(mode: 'partner' | 'background') {
+  const prevDefault = getDefaultTitle(commander.selectedCard.value, partner.selectedCard.value)
+  partner.clear()
   form.partnerCommanderName = undefined
   form.partnerImageUrl = undefined
   form.partnerColors = undefined
@@ -163,18 +123,11 @@ function clearPartner() {
   form.backgroundName = undefined
   form.backgroundImageUrl = undefined
   form.backgroundDefaultImageUrl = undefined
-  selectedPartnerCard.value = null
-  partnerResults.value = []
-  partnerPrints.value = []
-  mergeColors()
-  updateTitleIfDefault(prevDefault)
-}
-
-function setPartnerMode(mode: typeof PARTNER | typeof BACKGROUND) {
+  mergeColors(commander.selectedCard.value, null)
+  updateTitleIfDefault(prevDefault, commander.selectedCard.value, null)
   if (partnerMode.value === mode) {
-    clearPartner()
+    partnerMode.value = false
   } else {
-    clearPartner()
     partnerMode.value = mode
   }
 }
@@ -219,109 +172,55 @@ function onSubmit() {
     class="max-w-2xl mx-auto space-y-6"
     @submit="onSubmit"
   >
-    <UFormField
+    <DeckFormCardSearch
+      v-model="form.commanderName"
       label="Commander Name"
       name="commanderName"
-      required
-    >
-      <UInputMenu
-        v-model="form.commanderName"
-        :items="commanderResults.map((c: ScryfallCard) => c.name)"
-        placeholder="e.g. Atraxa, Praetors' Voice"
-        class="w-full"
-        @update:search-term="onCommanderSearch"
-        @update:model-value="onCommanderSelect"
-      />
-    </UFormField>
+      placeholder="e.g. Atraxa, Praetors' Voice"
+      :search-results="commander.searchResults.value"
+      :prints="commander.prints.value"
+      :loading-prints="commander.loadingPrints.value"
+      :selected-image-url="form.imageUrl"
+      @search="commander.onSearch"
+      @select="commander.onCardSelect"
+      @select-print="onCommanderPrintSelect"
+    />
 
-    <UFormField
-      v-if="commanderPrints.length > 0 || loadingCommanderPrints"
-      label="Select Print"
-      name="imageUrl"
-    >
-      <PrintSelector
-        :prints="commanderPrints"
-        :loading="loadingCommanderPrints"
-        :selected-image-url="form.imageUrl"
-        @select="selectCommanderPrint"
-      />
-    </UFormField>
-
-    <div class="flex gap-2">
-      <UButton
-        :label="partnerMode === PARTNER ? 'Remove Partner' : 'Add Partner'"
-        :icon="partnerMode === PARTNER ? 'i-lucide-user-minus' : 'i-lucide-user-plus'"
-        :variant="partnerMode === PARTNER ? 'soft' : 'outline'"
-        size="sm"
-        :disabled="partnerMode === BACKGROUND"
-        @click="setPartnerMode(PARTNER)"
-      />
-      <UButton
-        :label="partnerMode === BACKGROUND ? 'Remove Background' : 'Add Background'"
-        :icon="partnerMode === BACKGROUND ? 'i-lucide-image-minus' : 'i-lucide-image-plus'"
-        :variant="partnerMode === BACKGROUND ? 'soft' : 'outline'"
-        size="sm"
-        :disabled="partnerMode === PARTNER"
-        @click="setPartnerMode(BACKGROUND)"
-      />
-    </div>
+    <DeckFormPartnerToggle
+      :partner-mode="partnerMode"
+      @toggle="onTogglePartner"
+    />
 
     <template v-if="partnerMode === PARTNER">
-      <UFormField
+      <DeckFormCardSearch
+        v-model="form.partnerCommanderName"
         label="Partner Commander Name"
         name="partnerCommanderName"
-      >
-        <UInputMenu
-          v-model="form.partnerCommanderName"
-          :items="partnerResults.map((c: ScryfallCard) => c.name)"
-          placeholder="e.g. Tymna the Weaver"
-          class="w-full"
-          @update:search-term="onPartnerSearch"
-          @update:model-value="onPartnerSelect"
-        />
-      </UFormField>
-
-      <UFormField
-        v-if="partnerPrints.length > 0 || loadingPartnerPrints"
-        label="Select Print"
-        name="partnerImageUrl"
-      >
-        <PrintSelector
-          :prints="partnerPrints"
-          :loading="loadingPartnerPrints"
-          :selected-image-url="form.partnerImageUrl"
-          @select="selectPartnerPrint"
-        />
-      </UFormField>
+        placeholder="e.g. Tymna the Weaver"
+        :search-results="partner.searchResults.value"
+        :prints="partner.prints.value"
+        :loading-prints="partner.loadingPrints.value"
+        :selected-image-url="form.partnerImageUrl"
+        @search="partner.onSearch"
+        @select="partner.onCardSelect"
+        @select-print="onPartnerPrintSelect"
+      />
     </template>
 
     <template v-if="partnerMode === BACKGROUND">
-      <UFormField
+      <DeckFormCardSearch
+        v-model="form.backgroundName"
         label="Background Name"
         name="backgroundName"
-      >
-        <UInputMenu
-          v-model="form.backgroundName"
-          :items="partnerResults.map((c: ScryfallCard) => c.name)"
-          placeholder="e.g. Far Traveler"
-          class="w-full"
-          @update:search-term="onPartnerSearch"
-          @update:model-value="onPartnerSelect"
-        />
-      </UFormField>
-
-      <UFormField
-        v-if="partnerPrints.length > 0 || loadingPartnerPrints"
-        label="Select Print"
-        name="backgroundImageUrl"
-      >
-        <PrintSelector
-          :prints="partnerPrints"
-          :loading="loadingPartnerPrints"
-          :selected-image-url="form.backgroundImageUrl"
-          @select="selectPartnerPrint"
-        />
-      </UFormField>
+        placeholder="e.g. Far Traveler"
+        :search-results="partner.searchResults.value"
+        :prints="partner.prints.value"
+        :loading-prints="partner.loadingPrints.value"
+        :selected-image-url="form.backgroundImageUrl"
+        @search="partner.onSearch"
+        @select="partner.onCardSelect"
+        @select-print="onPartnerPrintSelect"
+      />
     </template>
 
     <UFormField
@@ -376,47 +275,10 @@ function onSubmit() {
       </UFormField>
     </div>
 
-    <UFormField
-      label="Colors"
-      name="colors"
-      required
-    >
-      <USelectMenu
-        v-model="form.colors"
-        :items="colorOptions"
-        value-key="value"
-        multiple
-        placeholder="Select color identity"
-        class="w-full"
-      >
-        <template #item-leading="{ item }">
-          <IconsWhiteMana
-            v-if="item.value === 'W'"
-            class="size-5"
-          />
-          <IconsBlueMana
-            v-else-if="item.value === 'U'"
-            class="size-5"
-          />
-          <IconsBlackMana
-            v-else-if="item.value === 'B'"
-            class="size-5"
-          />
-          <IconsRedMana
-            v-else-if="item.value === 'R'"
-            class="size-5"
-          />
-          <IconsGreenMana
-            v-else-if="item.value === 'G'"
-            class="size-5"
-          />
-          <IconsColorlessMana
-            v-else-if="item.value === 'C'"
-            class="size-5"
-          />
-        </template>
-      </USelectMenu>
-    </UFormField>
+    <DeckFormColorPicker
+      v-model="form.colors"
+      :color-options="colorOptions"
+    />
 
     <UFormField
       label="Short Description / Lore"
@@ -443,7 +305,6 @@ function onSubmit() {
       <UTextarea
         v-model="form.winCondition"
         placeholder="e.g. Infinite combo with X + Y, or commander damage..."
-
         :rows="2"
         class="w-full"
         :maxlength="DESCRIPTION_MAX_LENGTH"
