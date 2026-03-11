@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm'
 import { db } from '../../database'
-import { backgrounds, commanders, decks } from '#server/database/schema'
+import { backgrounds, commanders, decks, decksToArchetypes } from '#server/database/schema'
 import { insertDeckWithCommanderSchema } from '#shared/schemas/deck'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
-  const { commander, partner, background, deck } = await insertDeckWithCommanderSchema.parseAsync(body)
+  const { commander, partner, background, archetypes, deck } = await insertDeckWithCommanderSchema.parseAsync(body)
 
   // find or create commander
   const commanderId = await findOrCreateCommander(commander)
@@ -29,6 +29,17 @@ export default defineEventHandler(async (event) => {
     partnerCommanderId,
     backgroundId
   }).returning({ id: decks.id })
+
+  // create deck-archetype associations
+  if (archetypes.length > 0) {
+    await db.insert(decksToArchetypes).values(
+      archetypes.map((archetypeId, index) => ({
+        deckId: created!.id,
+        archetypeId,
+        order: index + 1
+      }))
+    )
+  }
 
   return created!.id
 })

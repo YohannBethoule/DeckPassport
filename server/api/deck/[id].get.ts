@@ -12,6 +12,10 @@ export default defineEventHandler(async (event) => {
   const deck = await db.query.decks.findFirst({
     where: eq(decks.id, id),
     with: {
+      archetypes: {
+        with: { archetype: true },
+        orderBy: (decksToArchetypes, { asc }) => [asc(decksToArchetypes.order)]
+      },
       bracket: true,
       commander: true,
       partnerCommander: true,

@@ -28,8 +28,15 @@ const deck = computed<InsertDeckWithCommander | null>(() => {
     partnerImageUrl: d.partnerCommander?.imageUrl ?? undefined,
     partnerColors: d.partnerCommander?.colors as ManaColor[] | undefined,
     backgroundName: d.background?.name,
-    backgroundImageUrl: d.background?.imageUrl ?? undefined
+    backgroundImageUrl: d.background?.imageUrl ?? undefined,
+    archetypes: d.archetypes?.map(a => a.archetypeId) ?? []
   }
+})
+
+const archetypeNames = computed(() => {
+  const d = rawDeck.value
+  if (!d) return []
+  return (d.archetypes ?? []).map(a => a.archetype.name)
 })
 
 const exportComponent = ref<{ $el: HTMLElement } | null>(null)
@@ -40,7 +47,10 @@ const { download, loading } = useDownloadCard(exportRef)
 <template>
   <UPage v-if="deck">
     <UPageBody>
-      <DeckView :deck="deck" />
+      <DeckView
+        :deck="deck"
+        :archetype-names="archetypeNames"
+      />
 
       <div class="flex justify-center mt-4">
         <UButton
@@ -51,11 +61,11 @@ const { download, loading } = useDownloadCard(exportRef)
         />
       </div>
     </UPageBody>
-
     <div class="fixed -left-2499.75 top-0">
       <DeckViewExport
         ref="exportComponent"
         :deck="deck"
+        :archetype-names="archetypeNames"
       />
     </div>
   </UPage>

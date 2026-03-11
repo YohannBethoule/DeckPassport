@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm'
 import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { archetypes } from './archetype'
 import { backgrounds } from './background'
 import { brackets } from './bracket'
 import { commanders } from './commander'
@@ -19,9 +20,21 @@ export const decks = pgTable('decks', {
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 })
 
-export const decksRelations = relations(decks, ({ one }) => ({
+export const decksToArchetypes = pgTable('decks_to_archetypes', {
+  deckId: integer('deck_id').notNull().references(() => decks.id, { onDelete: 'cascade' }),
+  archetypeId: integer('archetype_id').notNull().references(() => archetypes.id),
+  order: integer('order').notNull()
+})
+
+export const decksRelations = relations(decks, ({ one, many }) => ({
+  archetypes: many(decksToArchetypes),
   bracket: one(brackets, { fields: [decks.bracketId], references: [brackets.id] }),
   commander: one(commanders, { fields: [decks.commanderId], references: [commanders.id], relationName: 'commander' }),
   partnerCommander: one(commanders, { fields: [decks.partnerCommanderId], references: [commanders.id], relationName: 'partnerCommander' }),
   background: one(backgrounds, { fields: [decks.backgroundId], references: [backgrounds.id] })
+}))
+
+export const decksToArchetypesRelations = relations(decksToArchetypes, ({ one }) => ({
+  deck: one(decks, { fields: [decksToArchetypes.deckId], references: [decks.id] }),
+  archetype: one(archetypes, { fields: [decksToArchetypes.archetypeId], references: [archetypes.id] })
 }))

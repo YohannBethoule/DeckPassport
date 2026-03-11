@@ -33,7 +33,7 @@ import DeckPassportLogo from '~/assets/images/mtgdeckpassport.png'
       orientation="horizontal"
     >
       <img
-        src="~/assets/images/gitrogexample.png"
+        src="~/assets/images/voltronexample.png"
         alt="example card"
       >
     </UPageSection>
