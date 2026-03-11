@@ -48,7 +48,7 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
             :src="deck.imageUrl"
             :alt="deck.commanderName"
             class="rounded-xl w-full"
-            :class="deck.partnerImageUrl ? 'relative -left-10' : ''"
+            :class="secondaryImageUrl ? 'relative -left-10' : ''"
           >
         </div>
 
@@ -71,6 +71,7 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
 
           <div class="flex flex-wrap gap-2">
             <UBadge
+              v-if="!!archetypeNames && archetypeNames.length > 0"
               size="lg"
               variant="outline"
             >

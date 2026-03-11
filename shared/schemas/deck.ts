@@ -41,19 +41,29 @@ const backgroundFields = z.object({
   backgroundImageUrl: z.url('Must be a valid URL').optional()
 })
 
+const printFields = z.object({
+  commanderDefaultImageUrl: z.url('Must be a valid URL').optional(),
+  partnerDefaultImageUrl: z.url('Must be a valid URL').optional(),
+  backgroundDefaultImageUrl: z.url('Must be a valid URL').optional()
+})
+
 export const insertDeckWithCommanderSchema = commanderFieldsRenamed
   .extend(insertDeckSchema.shape)
   .extend(partnerFields.shape)
   .extend(backgroundFields.shape)
-  .transform(({ commanderName, imageUrl, colors, partnerCommanderName, partnerImageUrl, partnerColors, backgroundName, backgroundImageUrl, archetypes, ...deck }) => ({
-    commander: { name: commanderName, imageUrl, colors },
-    partner: partnerCommanderName ? { name: partnerCommanderName, imageUrl: partnerImageUrl, colors: partnerColors ?? [] } : undefined,
-    background: backgroundName ? { name: backgroundName, imageUrl: backgroundImageUrl } : undefined,
+  .extend(printFields.shape)
+  .transform(({ commanderName, imageUrl, colors, commanderDefaultImageUrl, partnerCommanderName, partnerImageUrl, partnerColors, partnerDefaultImageUrl, backgroundName, backgroundImageUrl, backgroundDefaultImageUrl, archetypes, ...deck }) => ({
+    commander: { name: commanderName, imageUrl: commanderDefaultImageUrl ?? imageUrl, colors },
+    commanderPrintUri: imageUrl,
+    partner: partnerCommanderName ? { name: partnerCommanderName, imageUrl: partnerDefaultImageUrl ?? partnerImageUrl, colors: partnerColors ?? [] } : undefined,
+    partnerPrintUri: partnerCommanderName ? partnerImageUrl : undefined,
+    background: backgroundName ? { name: backgroundName, imageUrl: backgroundDefaultImageUrl ?? backgroundImageUrl } : undefined,
+    backgroundPrintUri: backgroundName ? backgroundImageUrl : undefined,
     archetypes: archetypes?.filter(Boolean) ?? [],
     deck
   }))
 
-export const insertDeckWithCommanderFormSchema = commanderFieldsRenamed.extend(insertDeckSchema.shape).extend(partnerFields.shape).extend(backgroundFields.shape)
+export const insertDeckWithCommanderFormSchema = commanderFieldsRenamed.extend(insertDeckSchema.shape).extend(partnerFields.shape).extend(backgroundFields.shape).extend(printFields.shape)
 
 export type InsertDeck = z.infer<typeof insertDeckSchema>
 export type SelectDeck = z.infer<typeof selectDeckSchema>

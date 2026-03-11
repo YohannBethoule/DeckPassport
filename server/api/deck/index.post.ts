@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm'
 import { db } from '../../database'
-import { backgrounds, commanders, decks, decksToArchetypes } from '#server/database/schema'
+import { backgrounds, commanders, decks, decksToArchetypes, decksToCommanderPrints, decksToBackgroundPrints } from '#server/database/schema'
 import { insertDeckWithCommanderSchema } from '#shared/schemas/deck'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
-  const { commander, partner, background, archetypes, deck } = await insertDeckWithCommanderSchema.parseAsync(body)
+  const { commander, commanderPrintUri, partner, partnerPrintUri, background, backgroundPrintUri, archetypes, deck } = await insertDeckWithCommanderSchema.parseAsync(body)
 
   // find or create commander
   const commanderId = await findOrCreateCommander(commander)
@@ -39,6 +39,29 @@ export default defineEventHandler(async (event) => {
         order: index + 1
       }))
     )
+  }
+
+  // save commander print selections
+  const printEntries: { deckId: number, commanderId: number, commanderPrintUri: string }[] = []
+
+  if (commanderPrintUri && commanderPrintUri !== commander.imageUrl) {
+    printEntries.push({ deckId: created!.id, commanderId, commanderPrintUri })
+  }
+  if (partnerCommanderId && partnerPrintUri && partnerPrintUri !== partner?.imageUrl) {
+    printEntries.push({ deckId: created!.id, commanderId: partnerCommanderId, commanderPrintUri: partnerPrintUri })
+  }
+
+  if (printEntries.length > 0) {
+    await db.insert(decksToCommanderPrints).values(printEntries)
+  }
+
+  // save background print selection
+  if (backgroundId && backgroundPrintUri && backgroundPrintUri !== background?.imageUrl) {
+    await db.insert(decksToBackgroundPrints).values({
+      deckId: created!.id,
+      backgroundId,
+      backgroundPrintUri
+    })
   }
 
   return created!.id

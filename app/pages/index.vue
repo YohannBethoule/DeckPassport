@@ -44,7 +44,7 @@ import DeckPassportLogo from '~/assets/images/mtgdeckpassport.png'
       <DevLogList
         :items="[
           { title: 'User Account', description: 'Create your account and save your decks', icon: 'i-lucide-shield-user' },
-          { title: 'Alternative Prints', description: 'Choose the card printing you want for your commanders', icon: 'i-lucide-sparkles' },
+          { title: 'Core cards', description: 'Show up to 3 significative cards in your deck', icon: 'i-lucide-drama' },
           { title: 'Customization', description: 'Customize the appearance of the generated passport', icon: 'i-lucide-settings-2' }
         ]"
       />
