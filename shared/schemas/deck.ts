@@ -1,5 +1,5 @@
 import { z } from 'zod/v4'
-import { insertCommanderSchema } from './commander'
+import { insertCommanderSchema, MANA_COLORS } from './commander'
 
 export const DESCRIPTION_MAX_LENGTH = 200
 
@@ -32,19 +32,26 @@ const commanderFieldsRenamed = insertCommanderSchema
 const partnerFields = z.object({
   partnerCommanderName: z.string().optional(),
   partnerImageUrl: z.url('Must be a valid URL').optional(),
-  partnerColors: z.array(z.enum(['W', 'U', 'B', 'R', 'G', 'C'] as const)).optional()
+  partnerColors: z.array(z.enum(MANA_COLORS)).optional()
+})
+
+const backgroundFields = z.object({
+  backgroundName: z.string().optional(),
+  backgroundImageUrl: z.url('Must be a valid URL').optional()
 })
 
 export const insertDeckWithCommanderSchema = commanderFieldsRenamed
   .extend(insertDeckSchema.shape)
   .extend(partnerFields.shape)
-  .transform(({ commanderName, imageUrl, colors, partnerCommanderName, partnerImageUrl, partnerColors, ...deck }) => ({
+  .extend(backgroundFields.shape)
+  .transform(({ commanderName, imageUrl, colors, partnerCommanderName, partnerImageUrl, partnerColors, backgroundName, backgroundImageUrl, ...deck }) => ({
     commander: { name: commanderName, imageUrl, colors },
     partner: partnerCommanderName ? { name: partnerCommanderName, imageUrl: partnerImageUrl, colors: partnerColors ?? [] } : undefined,
+    background: backgroundName ? { name: backgroundName, imageUrl: backgroundImageUrl } : undefined,
     deck
   }))
 
-export const insertDeckWithCommanderFormSchema = commanderFieldsRenamed.extend(insertDeckSchema.shape).extend(partnerFields.shape)
+export const insertDeckWithCommanderFormSchema = commanderFieldsRenamed.extend(insertDeckSchema.shape).extend(partnerFields.shape).extend(backgroundFields.shape)
 
 export type InsertDeck = z.infer<typeof insertDeckSchema>
 export type SelectDeck = z.infer<typeof selectDeckSchema>

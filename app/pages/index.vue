@@ -20,7 +20,7 @@ import DeckPassportLogo from '~/assets/images/mtgdeckpassport.png'
       <template #links>
         <UButton
           label="Create New Deck"
-          to="/new-deck"
+          to="/deck/new"
           trailing-icon="i-lucide-arrow-right"
           size="xl"
           data-umami-event="create-deck-click"

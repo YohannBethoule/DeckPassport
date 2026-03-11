@@ -22,6 +22,9 @@ const colorComponents: Record<string, ReturnType<typeof resolveComponent>> = {
   C: resolveComponent('IconsColorlessMana')
 }
 
+const secondaryImageUrl = computed(() => props.deck.partnerImageUrl ?? props.deck.backgroundImageUrl)
+const secondaryName = computed(() => props.deck.partnerCommanderName ?? props.deck.backgroundName)
+
 const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracket ${props.deck.bracket}`)
 </script>
 
@@ -32,12 +35,12 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
         <div
           v-if="deck.imageUrl"
           class="relative flex-1 min-w-0"
-          :class="deck.partnerImageUrl ? 'mt-10 ml-8' : ''"
+          :class="secondaryImageUrl ? 'mt-10 ml-8' : ''"
         >
           <img
-            v-if="deck.partnerImageUrl"
-            :src="deck.partnerImageUrl"
-            :alt="deck.partnerCommanderName"
+            v-if="secondaryImageUrl"
+            :src="secondaryImageUrl"
+            :alt="secondaryName"
             class="absolute -top-12 rounded-xl w-full"
           >
           <img
