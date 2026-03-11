@@ -152,7 +152,7 @@ const fontScale = computed(() => {
 
         <div class="badges">
           <span
-            v-if="archetypeNames.length > 0"
+            v-if="!!archetypeNames && archetypeNames.length > 0"
             class="archetypes badge badge--outline"
           >
             <span

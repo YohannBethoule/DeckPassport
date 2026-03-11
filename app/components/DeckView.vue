@@ -71,7 +71,7 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
 
           <div class="flex flex-wrap gap-2">
             <UBadge
-              v-if="archetypeNames.length > 0"
+              v-if="!!archetypeNames && archetypeNames.length > 0"
               size="lg"
               variant="outline"
             >
