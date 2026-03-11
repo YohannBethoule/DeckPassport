@@ -3,7 +3,7 @@ import type { InsertDeckWithCommander } from '#shared/schemas/deck'
 import type { ManaColor } from '#shared/schemas/commander'
 import DeckPassportLogo from '~/assets/images/mtgdeckpassport.png'
 
-const { data: rawDecks } = await useFetch('/api/deck/search', {
+const { data: rawDecks } = await useFetch('/api/decks/search', {
   query: { sort: 'createdAt', order: 'desc', size: 3 }
 })
 
