@@ -282,6 +282,7 @@ const fontScale = computed(() => {
   font-size: .5em;
   font-weight: 500;
   width: fit-content;
+  white-space: nowrap;
 }
 
 .badge--outline {
