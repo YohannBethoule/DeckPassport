@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import type { InsertDeckWithCommander } from '#shared/schemas/deck'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   deck: InsertDeckWithCommander
   archetypeNames?: string[]
-}>()
+  compact?: boolean
+}>(), {
+  compact: false
+})
 
 const bracketLabels: Record<number, string> = {
   1: 'Exhibition',
@@ -32,17 +35,23 @@ function lerp(min: number, max: number, t: number) {
   return min + (max - min) * Math.min(Math.max(t, 0), 1)
 }
 
+const sizeMultiplier = computed(() => props.compact ? 0.45 : 1)
+
 const titleScale = computed(() => {
   const len = totalTextLength.value
   const shortThreshold = 15
   const longThreshold = 40
   const minScale = 1.5
-  const maxScale = 2.5
+  const maxScale = 2
 
-  if (len < shortThreshold) return maxScale
-  if (len > longThreshold) return minScale
-  const t = (len - shortThreshold) / (longThreshold - shortThreshold)
-  return lerp(maxScale, minScale, t)
+  let scale: number
+  if (len < shortThreshold) scale = maxScale
+  else if (len > longThreshold) scale = minScale
+  else {
+    const t = (len - shortThreshold) / (longThreshold - shortThreshold)
+    scale = lerp(maxScale, minScale, t)
+  }
+  return scale * sizeMultiplier.value
 })
 
 const totalTextLength = computed(() => {
@@ -61,47 +70,68 @@ const fontScale = computed(() => {
     maxScale += 0.1
   }
 
-  if (len < shortThreshold) return maxScale
-  if (len > longThreshold) return minScale
-  const t = (len - shortThreshold) / (longThreshold - shortThreshold)
-  return lerp(maxScale, minScale, t)
+  let scale: number
+  if (len < shortThreshold) scale = maxScale
+  else if (len > longThreshold) scale = minScale
+  else {
+    const t = (len - shortThreshold) / (longThreshold - shortThreshold)
+    scale = lerp(maxScale, minScale, t)
+  }
+  return scale * sizeMultiplier.value
 })
 </script>
 
 <template>
-  <UCard class="max-w-2xl mx-auto py-2">
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col sm:flex-row gap-6">
+  <UCard
+    class="mx-auto"
+    :class="compact ? 'max-w-sm py-1 h-full' : 'max-w-2xl py-2'"
+  >
+    <div
+      class="flex flex-col my-auto"
+      :class="compact ? 'gap-2' : 'gap-4'"
+    >
+      <div
+        class="flex gap-6"
+        :class="compact ? 'flex-row' : 'flex-col sm:flex-row'"
+      >
         <div
           v-if="deck.imageUrl"
-          class="relative flex-1 min-w-0"
-          :class="secondaryImageUrl ? 'mt-10 ml-8' : ''"
+          class="relative min-w-0"
+          :class="[
+            compact ? 'w-32 shrink-0' : 'flex-1',
+            secondaryImageUrl ? (compact ? 'mt-4 ml-3' : 'mt-10 ml-8') : ''
+          ]"
         >
           <img
             v-if="secondaryImageUrl"
             :src="secondaryImageUrl"
             :alt="secondaryName"
-            class="absolute -top-12 rounded-xl w-full"
+            class="absolute rounded-xl w-full"
+            :class="compact ? '-top-5' : '-top-12'"
           >
           <img
             :src="deck.imageUrl"
             :alt="deck.commanderName"
             class="rounded-xl w-full"
-            :class="secondaryImageUrl ? 'relative -left-10' : ''"
+            :class="secondaryImageUrl ? (compact ? 'relative -left-4' : 'relative -left-10') : ''"
           >
         </div>
 
         <div
-          class="flex-1 min-w-0 space-y-4"
+          class="flex-1 min-w-0"
+          :class="compact ? 'space-y-1' : 'space-y-4'"
           :style="{ fontSize: `${fontScale}rem` }"
         >
           <div>
-            <div class="flex items-center gap-1.5 mt-1">
+            <div
+              class="flex items-center mt-1"
+              :class="compact ? 'gap-0.5' : 'gap-1.5'"
+            >
               <component
                 :is="colorComponents[color]"
                 v-for="color in deck.colors"
                 :key="color"
-                class="size-5"
+                :class="compact ? 'size-3' : 'size-5'"
               />
             </div>
             <h2
@@ -112,10 +142,13 @@ const fontScale = computed(() => {
             </h2>
           </div>
 
-          <div class="flex flex-wrap gap-2">
+          <div
+            class="flex flex-wrap"
+            :class="compact ? 'gap-1' : 'gap-2'"
+          >
             <UBadge
               v-if="!!archetypeNames && archetypeNames.length > 0"
-              size="lg"
+              :size="compact ? 'sm' : 'lg'"
               variant="outline"
               :style="{ fontSize: `${fontScale}rem` }"
             >
@@ -125,7 +158,7 @@ const fontScale = computed(() => {
               >{{ name }}</span>
             </UBadge>
             <UBadge
-              size="lg"
+              :size="compact ? 'sm' : 'lg'"
               variant="subtle"
               :style="{ fontSize: `${fontScale}rem` }"
             >
@@ -153,7 +186,7 @@ const fontScale = computed(() => {
         </div>
       </div>
       <div
-        v-if="deck.deckListUrl"
+        v-if="deck.deckListUrl && !compact"
         class="no-export ml-auto"
       >
         <UButton
