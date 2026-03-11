@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { InsertDeckWithCommander } from '#shared/schemas/deck'
+import QRCode from 'qrcode'
 
 const props = defineProps<{
   deck: InsertDeckWithCommander
@@ -41,19 +42,51 @@ const totalTextLength = computed(() => {
   return (props.deck.description?.length ?? 0) + (props.deck.winCondition?.length ?? 0)
 })
 
+const qrDataUrl = ref<string>()
+
+watchEffect(async () => {
+  if (props.deck.deckListUrl) {
+    qrDataUrl.value = await QRCode.toDataURL(props.deck.deckListUrl, { width: 150, margin: 1 })
+  }
+})
+
+function lerp(min: number, max: number, t: number) {
+  return min + (max - min) * Math.min(Math.max(t, 0), 1)
+}
+
 const titleScale = computed(() => {
   const len = props.deck.title?.length ?? 0
-  if (len < 15) return 0.8
-  if (len > 40) return 0.7
-  return 1 - (len - 15) * 0.3 / 15
+  const shortThreshold = 15
+  const longThreshold = 40
+  const minScale = 0.7
+  const maxScale = 1
+
+  if (len < shortThreshold) return maxScale
+  if (len > longThreshold) return minScale
+  const t = (len - shortThreshold) / (longThreshold - shortThreshold)
+  return lerp(maxScale, minScale, t)
 })
 
 const fontScale = computed(() => {
   const len = totalTextLength.value
-  if (len < 100) return 1
-  if (len > 500) return 0.6
-  // Linear interpolation between 1 and 0.6 for 100-500 chars
-  return 1 - (len - 100) * 0.4 / 1300
+  const hasQr = !!props.deck.deckListUrl
+  const shortThreshold = 100
+  const longThreshold = 500
+  let minScale = 0.6
+  let maxScale = 1.1
+  if (hasQr) {
+    minScale += 0.2
+    maxScale += 0.1
+  }
+  if (hasSecondary.value) {
+    minScale += 0.2
+    maxScale += 0.1
+  }
+
+  if (len < shortThreshold) return maxScale
+  if (len > longThreshold) return minScale
+  const t = (len - shortThreshold) / (longThreshold - shortThreshold)
+  return lerp(maxScale, minScale, t)
 })
 </script>
 
@@ -63,23 +96,38 @@ const fontScale = computed(() => {
     :style="{ fontSize: `calc(${fontScale} * (var(--card-size) + (var(--gap) + var(--card-size))) / 45)` }"
   >
     <div class="row">
-      <div
-        v-if="deck.imageUrl"
-        class="image-stack"
-        :class="{ 'image-stack--duo': hasSecondary }"
-      >
-        <img
-          v-if="proxiedSecondaryImageUrl"
-          :src="proxiedSecondaryImageUrl"
-          :alt="secondaryName"
-          class="image image--partner"
+      <div class="content">
+        <div
+          v-if="deck.imageUrl"
+          class="image-stack"
+          :class="{ 'image-stack--duo': hasSecondary }"
         >
-        <img
-          :src="proxiedImageUrl"
-          :alt="deck.commanderName"
-          class="image"
-          :class="{ 'image--main': hasSecondary }"
+          <img
+            v-if="proxiedSecondaryImageUrl"
+            :src="proxiedSecondaryImageUrl"
+            :alt="secondaryName"
+            class="image image--partner"
+          >
+          <img
+            :src="proxiedImageUrl"
+            :alt="deck.commanderName"
+            class="image"
+            :class="{ 'image--main': hasSecondary }"
+          >
+        </div>
+        <div
+          v-if="qrDataUrl"
+          class="qr-section"
         >
+          <h3 class="label">
+            Deck List
+          </h3>
+          <img
+            :src="qrDataUrl"
+            alt="Deck list QR code"
+            class="qr-code"
+          >
+        </div>
       </div>
 
       <div class="content">
@@ -92,13 +140,14 @@ const fontScale = computed(() => {
               class="color-icon"
             />
           </div>
-          <h2
-            class="title"
-            :style="{ fontSize: `${titleScale * 1.5}em` }"
-          >
-            {{ deck.title }}
-          </h2>
         </div>
+
+        <h2
+          class="title"
+          :style="{ fontSize: `${titleScale * 1.5}em` }"
+        >
+          {{ deck.title }}
+        </h2>
 
         <div>
           <span class="badge">
@@ -207,7 +256,6 @@ const fontScale = computed(() => {
   font-weight: 700;
   font-size: 1.5em;
   line-height: 1em;
-  margin-top: .5em;
 }
 
 .badge {
@@ -228,5 +276,20 @@ const fontScale = computed(() => {
 .label {
   font-weight: 600;
   font-size: .8em;
+}
+
+.qr-section {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: center;
+  justify-content: right;
+  margin-right: 15px;
+}
+
+.qr-code {
+  width: calc(var(--card-width) * 0.4);
+  height: calc(var(--card-width) * 0.4);
+  border-radius: 4px;
 }
 </style>
