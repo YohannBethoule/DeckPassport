@@ -4,6 +4,7 @@ import QRCode from 'qrcode'
 
 const props = defineProps<{
   deck: InsertDeckWithCommander
+  archetypeNames?: string[]
 }>()
 
 const proxiedImageUrl = computed(() => {
@@ -149,7 +150,13 @@ const fontScale = computed(() => {
           {{ deck.title }}
         </h2>
 
-        <div>
+        <div class="badges">
+          <span class="archetypes badge badge--outline">
+            <span
+              v-for="name in archetypeNames"
+              :key="name"
+            >{{ name }}</span>
+          </span>
           <span class="badge">
             Bracket {{ deck.bracket }} — {{ bracketLabels[deck.bracket] ?? `Bracket ${deck.bracket}` }}
           </span>
@@ -258,6 +265,12 @@ const fontScale = computed(() => {
   line-height: 1em;
 }
 
+.badges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .badge {
   padding: 6px 12px;
   border-radius: 12px;
@@ -265,6 +278,13 @@ const fontScale = computed(() => {
   color: var(--color-primary);
   font-size: .5em;
   font-weight: 500;
+  width: fit-content;
+}
+
+.badge--outline {
+  background: transparent;
+  border: 1px solid var(--ui-primary);
+  color: var(--ui-primary);
 }
 
 .text {
@@ -291,5 +311,11 @@ const fontScale = computed(() => {
   width: calc(var(--card-width) * 0.4);
   height: calc(var(--card-width) * 0.4);
   border-radius: 4px;
+}
+
+.archetypes {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
 }
 </style>

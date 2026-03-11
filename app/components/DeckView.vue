@@ -3,6 +3,7 @@ import type { InsertDeckWithCommander } from '#shared/schemas/deck'
 
 const props = defineProps<{
   deck: InsertDeckWithCommander
+  archetypeNames?: string[]
 }>()
 
 const bracketLabels: Record<number, string> = {
@@ -68,12 +69,23 @@ const bracketLabel = computed(() => bracketLabels[props.deck.bracket] ?? `Bracke
             </h2>
           </div>
 
-          <UBadge
-            size="lg"
-            variant="subtle"
-          >
-            <span class="whitespace-nowrap">Bracket {{ deck.bracket }} — {{ bracketLabel }}</span>
-          </UBadge>
+          <div class="flex flex-wrap gap-2">
+            <UBadge
+              size="lg"
+              variant="outline"
+            >
+              <span
+                v-for="name in archetypeNames"
+                :key="name"
+              >{{ name }}</span>
+            </UBadge>
+            <UBadge
+              size="lg"
+              variant="subtle"
+            >
+              <span class="whitespace-nowrap">Bracket {{ deck.bracket }} — {{ bracketLabel }}</span>
+            </UBadge>
+          </div>
 
           <div
             v-if="deck.description"

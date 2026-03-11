@@ -13,6 +13,7 @@ const form = reactive({
   description: '',
   winCondition: '',
   coreCards: '',
+  archetypes: [] as number[],
   deckListUrl: '',
   partnerCommanderName: undefined as string | undefined,
   partnerImageUrl: undefined as string | undefined,
@@ -137,6 +138,16 @@ function setPartnerMode(mode: typeof PARTNER | typeof BACKGROUND) {
 const { data: bracketOptions } = await useFetch('/api/brackets', {
   transform: (brackets: { id: number, name: string, description: string | null }[]) =>
     brackets.map(b => ({ label: `Bracket ${b.id} - ${b.name}`, value: b.id }))
+})
+
+const { data: archetypeOptions } = await useFetch('/api/archetypes', {
+  transform: (archetypes: { id: number, name: string }[]) =>
+    archetypes.map(a => ({ label: a.name, value: a.id }))
+})
+
+const secondArchetypeOptions = computed(() => {
+  if (!archetypeOptions.value) return []
+  return archetypeOptions.value.filter(a => a.value !== form.archetypes[0])
 })
 
 const colorOptions = [
@@ -287,6 +298,33 @@ function onSubmit() {
         class="w-full"
       />
     </UFormField>
+
+    <div class="grid grid-cols-2 gap-4">
+      <UFormField
+        label="Primary Archetype"
+        name="archetypes[0]"
+      >
+        <USelect
+          v-model="form.archetypes[0]"
+          :items="archetypeOptions ?? []"
+          placeholder="Select an archetype"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        label="Secondary Archetype"
+        name="archetypes[1]"
+      >
+        <USelect
+          v-model="form.archetypes[1]"
+          :items="secondArchetypeOptions"
+          placeholder="Select an archetype"
+          class="w-full"
+          :disabled="!form.archetypes[0]"
+        />
+      </UFormField>
+    </div>
 
     <UFormField
       label="Colors"

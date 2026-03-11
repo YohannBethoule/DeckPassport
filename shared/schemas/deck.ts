@@ -6,6 +6,7 @@ export const DESCRIPTION_MAX_LENGTH = 200
 export const insertDeckSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   bracket: z.number().int().min(1, 'Bracket must be between 1 and 5').max(5, 'Bracket must be between 1 and 5'),
+  archetypes: z.array(z.number().int()).max(2, 'You can select up to 2 archetypes').optional(),
   description: z.string().min(1, 'Description is required').max(DESCRIPTION_MAX_LENGTH, 'Description must not exceed 200 characters'),
   winCondition: z.string().min(1, 'Win condition is required').max(DESCRIPTION_MAX_LENGTH, 'Win conditions must not exceed 200 characters'),
   coreCards: z.string().optional(),
@@ -44,10 +45,11 @@ export const insertDeckWithCommanderSchema = commanderFieldsRenamed
   .extend(insertDeckSchema.shape)
   .extend(partnerFields.shape)
   .extend(backgroundFields.shape)
-  .transform(({ commanderName, imageUrl, colors, partnerCommanderName, partnerImageUrl, partnerColors, backgroundName, backgroundImageUrl, ...deck }) => ({
+  .transform(({ commanderName, imageUrl, colors, partnerCommanderName, partnerImageUrl, partnerColors, backgroundName, backgroundImageUrl, archetypes, ...deck }) => ({
     commander: { name: commanderName, imageUrl, colors },
     partner: partnerCommanderName ? { name: partnerCommanderName, imageUrl: partnerImageUrl, colors: partnerColors ?? [] } : undefined,
     background: backgroundName ? { name: backgroundName, imageUrl: backgroundImageUrl } : undefined,
+    archetypes: archetypes?.filter(Boolean) ?? [],
     deck
   }))
 
