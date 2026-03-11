@@ -16,10 +16,10 @@ async function onSubmit(data: InsertDeckWithCommander) {
       headline="New Deck"
       title="Create your Deck Passport"
       description="Fill in the details about your commander deck to generate your deck passport."
-      :ui="{ root: 'px-12' }"
+      :ui="{ root: 'px-6 sm:px-12' }"
     />
 
-    <UPageBody>
+    <UPageBody class="p-4">
       <DeckForm @submit="onSubmit" />
     </UPageBody>
   </UPage>
