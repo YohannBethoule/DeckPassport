@@ -1,4 +1,5 @@
 export * from './archetype'
+export * from './auth'
 export * from './background'
 export * from './bracket'
 export * from './commander'
