@@ -1,4 +1,7 @@
 <script setup>
+const { useSession, signOut } = useAuth()
+const session = useSession()
+
 useHead({
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
@@ -27,7 +30,7 @@ useSeoMeta({
 
 <template>
   <UApp>
-    <UHeader :toggle="false">
+    <UHeader>
       <template #left>
         <NuxtLink to="/">
           <AppLogo class="w-auto h-6 shrink-0" />
@@ -35,7 +38,56 @@ useSeoMeta({
       </template>
 
       <template #right>
+        <UNavigationMenu
+          :items="[
+            { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
+            ...(session?.data?.user ? [{ label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' }] : [])
+          ]"
+          class="hidden sm:flex"
+        />
+        <template v-if="session?.data?.user">
+          <UDropdownMenu
+            :items="[
+              [{
+                label: 'Sign out',
+                icon: 'i-lucide-log-out',
+                onSelect: () => signOut().then(() => navigateTo('/'))
+              }]
+            ]"
+          >
+            <UButton
+              color="neutral"
+              variant="ghost"
+            >
+              <UAvatar
+                :src="session.data.user.image ?? undefined"
+                :alt="session.data.user.name"
+                size="xs"
+              />
+              <span class="hidden sm:inline">{{ session.data.user.name }}</span>
+            </UButton>
+          </UDropdownMenu>
+        </template>
+        <UButton
+          v-else
+          to="/login"
+          variant="outline"
+          color="neutral"
+          size="sm"
+        >
+          Sign in
+        </UButton>
         <UColorModeButton />
+      </template>
+
+      <template #panel>
+        <UNavigationMenu
+          :items="[
+            { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
+            ...(session?.data?.user ? [{ label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' }] : [])
+          ]"
+          orientation="vertical"
+        />
       </template>
     </UHeader>
 

@@ -6,7 +6,7 @@ interface UseCardSearchOptions {
 }
 
 export function useCardSearch({ searchFn, onSelect }: UseCardSearchOptions) {
-  const { fetchPrints } = useScryfall()
+  const { fetchPrints, fetchCardByName } = useScryfall()
 
   const searchResults = ref<ScryfallCard[]>([])
   const selectedCard = ref<ScryfallCard | null>(null)
@@ -26,12 +26,25 @@ export function useCardSearch({ searchFn, onSelect }: UseCardSearchOptions) {
     const imageUrl = getCardImageUri(card)
     onSelect?.(card, imageUrl)
 
+    await loadPrints(card)
+  }
+
+  async function loadPrints(card: ScryfallCard) {
     prints.value = []
     if (card.prints_search_uri) {
       loadingPrints.value = true
       prints.value = await fetchPrints(card.prints_search_uri)
       loadingPrints.value = false
     }
+  }
+
+  async function initializeFromName(name: string) {
+    if (!name) return
+    const card = await fetchCardByName(name)
+    if (!card) return
+
+    selectedCard.value = card
+    await loadPrints(card)
   }
 
   function selectPrint(print: ScryfallCard): string | undefined {
@@ -52,6 +65,7 @@ export function useCardSearch({ searchFn, onSelect }: UseCardSearchOptions) {
     onSearch,
     onCardSelect,
     selectPrint,
+    initializeFromName,
     clear
   }
 }

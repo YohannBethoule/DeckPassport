@@ -4,28 +4,41 @@ import { insertDeckWithCommanderFormSchema } from '#shared/schemas/deck'
 import { type ManaColor, type ChromaticColor, CHROMATIC_COLORS } from '#shared/schemas/commander'
 import type { ScryfallCard } from '~/composables/useScryfall'
 
-const form = reactive({
-  commanderName: '',
-  title: '',
-  imageUrl: '',
-  bracket: undefined as number | undefined,
-  colors: [] as ManaColor[],
-  description: '',
-  winCondition: '',
-  coreCards: '',
-  archetypes: [] as number[],
-  deckListUrl: '',
-  partnerCommanderName: undefined as string | undefined,
-  partnerImageUrl: undefined as string | undefined,
-  partnerColors: undefined as ManaColor[] | undefined,
-  backgroundName: undefined as string | undefined,
-  backgroundImageUrl: undefined as string | undefined,
-  commanderDefaultImageUrl: undefined as string | undefined,
-  partnerDefaultImageUrl: undefined as string | undefined,
-  backgroundDefaultImageUrl: undefined as string | undefined
+const props = withDefaults(defineProps<{
+  initialValues?: InsertDeckWithCommander
+  submitLabel?: string
+}>(), {
+  submitLabel: 'Generate Passport'
 })
 
-const partnerMode = ref<PartnerMode>(false)
+const form = reactive({
+  commanderName: props.initialValues?.commanderName ?? '',
+  title: props.initialValues?.title ?? '',
+  imageUrl: props.initialValues?.imageUrl ?? '',
+  bracket: props.initialValues?.bracket as number | undefined,
+  colors: props.initialValues?.colors ?? [] as ManaColor[],
+  description: props.initialValues?.description ?? '',
+  winCondition: props.initialValues?.winCondition ?? '',
+  coreCards: props.initialValues?.coreCards ?? '',
+  archetypes: props.initialValues?.archetypes ?? [] as number[],
+  deckListUrl: props.initialValues?.deckListUrl ?? '',
+  partnerCommanderName: props.initialValues?.partnerCommanderName,
+  partnerImageUrl: props.initialValues?.partnerImageUrl,
+  partnerColors: props.initialValues?.partnerColors,
+  backgroundName: props.initialValues?.backgroundName,
+  backgroundImageUrl: props.initialValues?.backgroundImageUrl,
+  commanderDefaultImageUrl: props.initialValues?.commanderDefaultImageUrl,
+  partnerDefaultImageUrl: props.initialValues?.partnerDefaultImageUrl,
+  backgroundDefaultImageUrl: props.initialValues?.backgroundDefaultImageUrl
+})
+
+const partnerMode = ref<PartnerMode>(
+  props.initialValues?.partnerCommanderName
+    ? PARTNER
+    : props.initialValues?.backgroundName
+      ? BACKGROUND
+      : false
+)
 
 const { searchCommanders, searchBackgrounds } = useScryfall()
 
@@ -111,6 +124,21 @@ function onPartnerPrintSelect(print: ScryfallCard) {
   } else {
     form.partnerImageUrl = imageUrl
   }
+}
+
+// Initialize card searches when editing an existing deck
+if (props.initialValues) {
+  onMounted(async () => {
+    const promises: Promise<void>[] = []
+    if (props.initialValues!.commanderName) {
+      promises.push(commander.initializeFromName(props.initialValues!.commanderName))
+    }
+    const partnerName = props.initialValues!.partnerCommanderName ?? props.initialValues!.backgroundName
+    if (partnerName) {
+      promises.push(partner.initializeFromName(partnerName))
+    }
+    await Promise.all(promises)
+  })
 }
 
 function onTogglePartner(mode: 'partner' | 'background') {
@@ -326,7 +354,7 @@ function onSubmit() {
     <div class="flex justify-end pt-4">
       <UButton
         type="submit"
-        label="Generate Passport"
+        :label="submitLabel"
         icon="i-lucide-image"
         size="lg"
         data-umami-event="generate-passport-click"

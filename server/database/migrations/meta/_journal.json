@@ -29,6 +29,13 @@
       "when": 1773239081232,
       "tag": "0003_light_lord_hawal",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773312467813,
+      "tag": "0004_secret_payback",
+      "breakpoints": true
     }
   ]
 }

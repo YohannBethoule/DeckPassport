@@ -1,41 +1,9 @@
 <script setup lang="ts">
-import type { InsertDeckWithCommander } from '#shared/schemas/deck'
-import type { ManaColor } from '#shared/schemas/commander'
 import DeckPassportLogo from '~/assets/images/mtgdeckpassport.png'
 
 const { data: rawDecks } = await useFetch('/api/decks/search', {
   query: { sort: 'createdAt', order: 'desc', size: 3 }
 })
-
-function getCommanderPrintUri(d: NonNullable<typeof rawDecks.value>[number], commanderId: number): string | undefined {
-  return d.commanderPrints?.find(p => p.commanderId === commanderId)?.commanderPrintUri
-}
-
-function toDeckView(d: NonNullable<typeof rawDecks.value>[number]): { deck: InsertDeckWithCommander, archetypeNames: string[] } {
-  const commanderPrintUri = getCommanderPrintUri(d, d.commander.id)
-  const partnerPrintUri = d.partnerCommander ? getCommanderPrintUri(d, d.partnerCommander.id) : undefined
-
-  return {
-    deck: {
-      commanderName: d.commander.name,
-      imageUrl: commanderPrintUri ?? d.commander.imageUrl ?? '',
-      colors: d.commander.colors as ManaColor[],
-      title: d.title,
-      bracket: d.bracket.id,
-      description: d.description,
-      winCondition: d.winCondition,
-      coreCards: d.coreCards ?? '',
-      deckListUrl: d.deckListUrl ?? '',
-      partnerCommanderName: d.partnerCommander?.name,
-      partnerImageUrl: partnerPrintUri ?? d.partnerCommander?.imageUrl ?? undefined,
-      partnerColors: d.partnerCommander?.colors as ManaColor[] | undefined,
-      backgroundName: d.background?.name,
-      backgroundImageUrl: (d.background ? d.backgroundPrints?.find(p => p.backgroundId === d.background!.id)?.backgroundPrintUri : undefined) ?? d.background?.imageUrl ?? undefined,
-      archetypes: d.archetypes?.map(a => a.archetypeId) ?? []
-    },
-    archetypeNames: (d.archetypes ?? []).map(a => a.archetype.name)
-  }
-}
 
 const latestDecks = computed(() => {
   if (!rawDecks.value) return []
@@ -108,8 +76,8 @@ const latestDecks = computed(() => {
     >
       <DevLogList
         :items="[
-          { title: 'User Account', description: 'Create your account and save your decks', icon: 'i-lucide-shield-user' },
-          { title: 'Core cards', description: 'Show up to 3 significative cards in your deck', icon: 'i-lucide-drama' },
+          { title: 'Browse Decks', description: 'Browse decks created by other users', icon: 'i-lucide-search' },
+          { title: 'Core Cards', description: 'Show up to 3 significative cards in your deck', icon: 'i-lucide-drama' },
           { title: 'Customization', description: 'Customize the appearance of the generated passport', icon: 'i-lucide-settings-2' }
         ]"
       />
