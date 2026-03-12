@@ -14,6 +14,16 @@ useHead({
   }
 })
 
+const mobileNavItems = [
+  { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
+  { label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' }
+]
+
+const mobileAuthItem = computed(() => session.value?.data?.user
+  ? { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: () => signOut().then(() => navigateTo('/')) }
+  : { label: 'Sign in', to: '/login', icon: 'i-lucide-user' }
+)
+
 const title = 'EDH DeckPassport'
 const description = 'DeckPassport is a tool for MTG Commander players to generate a sleek, shareable card that captures the identity of their deck — commander art, color identity, bracket, win conditions, and key cards, all in one image. No more walls of text to explain your deck. Just share the card.'
 
@@ -74,20 +84,34 @@ useSeoMeta({
           variant="outline"
           color="neutral"
           size="sm"
+          class="hidden sm:flex"
         >
           Sign in
         </UButton>
         <UColorModeButton />
       </template>
 
-      <template #panel>
-        <UNavigationMenu
-          :items="[
-            { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
-            ...(session?.data?.user ? [{ label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' }] : [])
-          ]"
-          orientation="vertical"
-        />
+      <template #body>
+        <div class="flex flex-col justify-between h-full">
+          <UNavigationMenu
+            :items="mobileNavItems"
+            orientation="vertical"
+            :ui="{
+              link: 'text-lg py-3',
+              linkLeadingIcon: 'size-6'
+            }"
+          />
+          <div class="border-t border-default pt-4 mt-4">
+            <UNavigationMenu
+              :items="[mobileAuthItem]"
+              orientation="vertical"
+              :ui="{
+                link: 'text-lg py-3',
+                linkLeadingIcon: 'size-6'
+              }"
+            />
+          </div>
+        </div>
       </template>
     </UHeader>
 
