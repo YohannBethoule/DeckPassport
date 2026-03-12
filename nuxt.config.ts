@@ -22,7 +22,6 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   routeRules: {
-    '/': { prerender: true },
     '/stats/**': { proxy: 'https://cloud.umami.is/**' },
     '/api/analytics/**': { proxy: 'https://api-gateway.umami.dev/**' }
   },
