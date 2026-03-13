@@ -16,7 +16,8 @@ useHead({
 
 const mobileNavItems = [
   { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
-  { label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' }
+  { label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' },
+  { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
 ]
 
 const mobileAuthItem = computed(() => session.value?.data?.user
@@ -51,7 +52,8 @@ useSeoMeta({
         <UNavigationMenu
           :items="[
             { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
-            ...(session?.data?.user ? [{ label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' }] : [])
+            ...(session?.data?.user ? [{ label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' }] : []),
+            { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
           ]"
           class="hidden sm:flex"
         />

@@ -6,8 +6,8 @@ const { data: rawDecks } = await useFetch('/api/decks/search', {
 })
 
 const latestDecks = computed(() => {
-  if (!rawDecks.value) return []
-  return rawDecks.value.map(d => ({
+  if (!rawDecks.value?.items) return []
+  return rawDecks.value.items.map(d => ({
     id: d.id,
     ...toDeckView(d)
   }))
@@ -69,6 +69,15 @@ const latestDecks = computed(() => {
           />
         </NuxtLink>
       </div>
+      <div class="flex justify-center mt-6">
+        <UButton
+          label="Browse all decks"
+          to="/browse"
+          trailing-icon="i-lucide-arrow-right"
+          variant="outline"
+          color="neutral"
+        />
+      </div>
     </UPageSection>
     <UPageSection
       title="What's next ?"
@@ -76,8 +85,8 @@ const latestDecks = computed(() => {
     >
       <DevLogList
         :items="[
-          { title: 'Browse Decks', description: 'Browse decks created by other users', icon: 'i-lucide-search' },
           { title: 'Core Cards', description: 'Show up to 3 significative cards in your deck', icon: 'i-lucide-drama' },
+          { title: 'Deck Filters', description: 'Filter the decks in the Browse Decks page', icon: 'i-lucide-search' },
           { title: 'Customization', description: 'Customize the appearance of the generated passport', icon: 'i-lucide-settings-2' }
         ]"
       />

@@ -1,18 +1,12 @@
 <script setup lang="ts">
-const { useSession } = useAuth()
-const session = useSession()
-
-const userId = computed(() => session.value?.data?.user?.id)
-
 const page = ref(1)
 const size = 12
 
 const { data, status } = await useFetch('/api/decks/search', {
   query: computed(() => ({
-    sort: 'updatedAt',
+    sort: 'createdAt',
     order: 'desc',
     size,
-    userId: userId.value,
     page: page.value
   })),
   watch: [page]
@@ -25,14 +19,19 @@ const decks = computed(() => {
     ...toDeckView(d)
   }))
 })
+
+useSeoMeta({
+  title: 'Browse Decks - EDH DeckPassport',
+  description: 'Browse all EDH commander deck passports created by the community.'
+})
 </script>
 
 <template>
   <UContainer>
     <UPageHeader
-      title="My Decks"
-      description="All the deck passports you've created."
-      icon="i-lucide-layout-grid"
+      title="Browse Decks"
+      description="Explore deck passports created by the community."
+      icon="i-lucide-search"
     />
 
     <DeckList
@@ -41,8 +40,8 @@ const decks = computed(() => {
       :total="data?.total ?? 0"
       :size="size"
       :status="status"
-      empty-message="You haven't created any decks yet."
-      empty-button-label="Create your first deck"
+      empty-message="No decks found."
+      empty-button-label="Create the first deck"
     />
   </UContainer>
 </template>
