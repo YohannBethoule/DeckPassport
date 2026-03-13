@@ -14,11 +14,16 @@ useHead({
   }
 })
 
-const mobileNavItems = [
+const profilePath = computed(() => session.value?.data?.user
+  ? `/profile/${session.value.data.user.id}`
+  : undefined
+)
+
+const mobileNavItems = computed(() => [
   { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
-  { label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' },
+  ...(profilePath.value ? [{ label: 'My Profile', to: profilePath.value, icon: 'i-lucide-user' }] : []),
   { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
-]
+])
 
 const mobileAuthItem = computed(() => session.value?.data?.user
   ? { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: () => signOut().then(() => navigateTo('/')) }
@@ -52,7 +57,7 @@ useSeoMeta({
         <UNavigationMenu
           :items="[
             { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
-            ...(session?.data?.user ? [{ label: 'My Decks', to: '/my-decks', icon: 'i-lucide-layout-grid' }] : []),
+            ...(profilePath ? [{ label: 'My Profile', to: profilePath, icon: 'i-lucide-user' }] : []),
             { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
           ]"
           class="hidden sm:flex"
@@ -60,6 +65,11 @@ useSeoMeta({
         <template v-if="session?.data?.user">
           <UDropdownMenu
             :items="[
+              [{
+                label: 'My Profile',
+                icon: 'i-lucide-user',
+                onSelect: () => navigateTo(profilePath)
+              }],
               [{
                 label: 'Sign out',
                 icon: 'i-lucide-log-out',
