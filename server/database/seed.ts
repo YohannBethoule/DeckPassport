@@ -45,7 +45,9 @@ const archetypeData = [
   { id: 27, name: 'Blink', description: 'Repeatedly exiles and returns creatures to the battlefield to reuse enter-the-battlefield effects.' },
   { id: 28, name: 'Clone', description: 'Copies opponents\' and own powerful creatures and permanents to multiply threats.' },
   { id: 29, name: 'Theft', description: 'Steals opponents\' permanents and spells, turning their resources against them.' },
-  { id: 30, name: 'Lifegain', description: 'Gains large amounts of life and converts that life total into win conditions and card advantage.' }
+  { id: 30, name: 'Lifegain', description: 'Gains large amounts of life and converts that life total into win conditions and card advantage.' },
+  { id: 31, name: '+1/+1', description: 'Put a ton of +1/+1 counters of your creatures.' },
+  { id: 32, name: 'Goad', description: 'Force your opponents to fight amongst themselves.' }
 ]
 
 async function seed() {
