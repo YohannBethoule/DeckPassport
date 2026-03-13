@@ -184,11 +184,14 @@ const colorOptions = [
   { label: 'Colorless', value: 'C' }
 ]
 
+const submitting = ref(false)
+
 const emit = defineEmits<{
   submit: [data: InsertDeckWithCommander]
 }>()
 
 function onSubmit() {
+  submitting.value = true
   emit('submit', { ...form } as InsertDeckWithCommander)
 }
 </script>
@@ -357,6 +360,8 @@ function onSubmit() {
         :label="submitLabel"
         icon="i-lucide-image"
         size="lg"
+        :disabled="submitting"
+        :loading="submitting"
         data-umami-event="generate-passport-click"
       />
     </div>

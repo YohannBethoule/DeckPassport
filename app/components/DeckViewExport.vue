@@ -320,6 +320,6 @@ const fontScale = computed(() => {
 .archetypes {
   display: flex;
   flex-direction: row;
-  gap: 4px;
+  gap: 3px;
 }
 </style>
