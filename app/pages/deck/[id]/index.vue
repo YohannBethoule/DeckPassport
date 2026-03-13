@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { InsertDeckWithCommander } from '#shared/schemas/deck'
+
 const route = useRoute()
 const deckId = Number(route.params.id)
 
@@ -23,7 +25,6 @@ const exportComponent = ref<{ $el: HTMLElement } | null>(null)
 const exportRef = computed(() => exportComponent.value?.$el ?? null)
 const { download, loading } = useDownloadCard(exportRef)
 
-const duplicating = ref(false)
 const deleteModalOpen = ref(false)
 const deleting = ref(false)
 
@@ -38,24 +39,18 @@ async function deleteDeck() {
   }
 }
 
-async function editOrDuplicate() {
+function editOrDuplicate() {
   if (isOwner.value) {
     navigateTo(`/deck/${deckId}/edit`)
     return
   }
 
-  duplicating.value = true
-  try {
-    const deckData = deckView.value?.deck
-    if (!deckData) return
-    const newId = await $fetch('/api/deck', {
-      method: 'POST',
-      body: deckData
-    })
-    navigateTo(`/deck/${newId}/edit`)
-  } finally {
-    duplicating.value = false
-  }
+  const deckData = deckView.value?.deck
+  if (!deckData) return
+
+  const prefill = useState<InsertDeckWithCommander>('deckPrefill')
+  prefill.value = { ...deckData }
+  navigateTo('/deck/new')
 }
 </script>
 
@@ -78,7 +73,6 @@ async function editOrDuplicate() {
           :label="isOwner ? 'Edit Deck' : 'Duplicate & Edit'"
           :icon="isOwner ? 'i-lucide-pencil' : 'i-lucide-copy'"
           variant="outline"
-          :loading="duplicating"
           @click="editOrDuplicate"
         />
         <UButton
