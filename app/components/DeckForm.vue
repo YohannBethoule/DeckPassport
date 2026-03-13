@@ -43,17 +43,11 @@ const partnerMode = ref<PartnerMode>(
 
 const { searchCommanders, searchBackgrounds } = useScryfall()
 
-function updateDeckColors(mainCard: ScryfallCard | null) {
-  const mainColors = mainCard?.color_identity.filter(
+function updateCommanderColors(mainCard: ScryfallCard | null) {
+  const colors = mainCard?.color_identity.filter(
     (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
   ) ?? []
-
-  const bgColors = partnerMode.value === BACKGROUND
-    ? form.backgroundColors ?? []
-    : []
-
-  const merged = [...new Set([...mainColors, ...bgColors])]
-  form.colors = merged.length ? merged as ManaColor[] : ['C']
+  form.colors = colors.length ? colors : ['C']
 }
 
 function getDefaultTitle(mainCard: ScryfallCard | null, partnerCard: ScryfallCard | null) {
@@ -78,7 +72,7 @@ const commander = useCardSearch({
       form.imageUrl = imageUrl
       form.commanderDefaultImageUrl = imageUrl
     }
-    updateDeckColors(card)
+    updateCommanderColors(card)
     updateTitleIfDefault(prevDefault, card, partner.selectedCard.value)
   }
 })
@@ -102,7 +96,6 @@ const partner = useCardSearch({
       if (!form.backgroundColors.length) {
         form.backgroundColors = ['C']
       }
-      updateDeckColors(commander.selectedCard.value)
     } else {
       form.partnerCommanderName = card.name
       if (imageUrl) {
@@ -161,7 +154,6 @@ function onTogglePartner(mode: 'partner' | 'background') {
   form.backgroundImageUrl = undefined
   form.backgroundColors = undefined
   form.backgroundDefaultImageUrl = undefined
-  updateDeckColors(commander.selectedCard.value)
   updateTitleIfDefault(prevDefault, commander.selectedCard.value, null)
   if (partnerMode.value === mode) {
     partnerMode.value = false
