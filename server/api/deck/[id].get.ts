@@ -21,7 +21,8 @@ export default defineEventHandler(async (event) => {
       partnerCommander: true,
       background: true,
       commanderPrints: true,
-      backgroundPrints: true
+      backgroundPrints: true,
+      user: true
     }
   })
 

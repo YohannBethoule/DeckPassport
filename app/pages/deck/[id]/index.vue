@@ -62,6 +62,24 @@ function editOrDuplicate() {
         :archetype-names="archetypeNames"
       />
 
+      <div
+        v-if="rawDeck?.user"
+        class="flex items-center justify-center gap-2 mt-4 text-sm text-muted"
+      >
+        <span>Created by</span>
+        <NuxtLink
+          :to="`/profile/${rawDeck.user.id}`"
+          class="flex items-center gap-1.5 text-default hover:underline"
+        >
+          <UAvatar
+            :src="rawDeck.user.image ?? undefined"
+            :alt="rawDeck.user.name"
+            size="2xs"
+          />
+          {{ rawDeck.user.name }}
+        </NuxtLink>
+      </div>
+
       <div class="flex justify-center gap-2 mt-4">
         <UButton
           label="Download as Image"
