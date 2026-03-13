@@ -86,7 +86,6 @@ const latestDecks = computed(() => {
       <DevLogList
         :items="[
           { title: 'Core Cards', description: 'Show up to 3 significative cards in your deck', icon: 'i-lucide-drama' },
-          { title: 'Deck Filters', description: 'Filter the decks in the Browse Decks page', icon: 'i-lucide-search' },
           { title: 'Customization', description: 'Customize the appearance of the generated passport', icon: 'i-lucide-settings-2' }
         ]"
       />

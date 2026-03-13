@@ -1,0 +1,1 @@
+ALTER TABLE "backgrounds" ADD COLUMN "colors" text[] DEFAULT '{}' NOT NULL;

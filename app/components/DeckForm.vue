@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { DESCRIPTION_MAX_LENGTH, type InsertDeckWithCommander } from '#shared/schemas/deck'
 import { insertDeckWithCommanderFormSchema } from '#shared/schemas/deck'
-import { type ManaColor, type ChromaticColor, CHROMATIC_COLORS } from '#shared/schemas/commander'
+import { type ChromaticColor, CHROMATIC_COLORS, type ManaColor } from '#shared/schemas/commander'
 import type { ScryfallCard } from '~/composables/useScryfall'
 
 const props = withDefaults(defineProps<{
@@ -27,6 +27,7 @@ const form = reactive({
   partnerColors: props.initialValues?.partnerColors,
   backgroundName: props.initialValues?.backgroundName,
   backgroundImageUrl: props.initialValues?.backgroundImageUrl,
+  backgroundColors: props.initialValues?.backgroundColors,
   commanderDefaultImageUrl: props.initialValues?.commanderDefaultImageUrl,
   partnerDefaultImageUrl: props.initialValues?.partnerDefaultImageUrl,
   backgroundDefaultImageUrl: props.initialValues?.backgroundDefaultImageUrl
@@ -42,15 +43,11 @@ const partnerMode = ref<PartnerMode>(
 
 const { searchCommanders, searchBackgrounds } = useScryfall()
 
-function mergeColors(mainCard: ScryfallCard | null, partnerCard: ScryfallCard | null) {
-  const mainColors = mainCard?.color_identity.filter(
+function updateCommanderColors(mainCard: ScryfallCard | null) {
+  const colors = mainCard?.color_identity.filter(
     (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
   ) ?? []
-  const partnerColors = partnerCard?.color_identity.filter(
-    (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
-  ) ?? []
-  const merged = [...new Set([...mainColors, ...partnerColors])]
-  form.colors = merged.length ? merged : ['C']
+  form.colors = colors.length ? colors : ['C']
 }
 
 function getDefaultTitle(mainCard: ScryfallCard | null, partnerCard: ScryfallCard | null) {
@@ -75,7 +72,7 @@ const commander = useCardSearch({
       form.imageUrl = imageUrl
       form.commanderDefaultImageUrl = imageUrl
     }
-    mergeColors(card, partner.selectedCard.value)
+    updateCommanderColors(card)
     updateTitleIfDefault(prevDefault, card, partner.selectedCard.value)
   }
 })
@@ -93,6 +90,12 @@ const partner = useCardSearch({
         form.backgroundImageUrl = imageUrl
         form.backgroundDefaultImageUrl = imageUrl
       }
+      form.backgroundColors = card.color_identity.filter(
+        (c): c is ChromaticColor => (CHROMATIC_COLORS as readonly string[]).includes(c)
+      )
+      if (!form.backgroundColors.length) {
+        form.backgroundColors = ['C']
+      }
     } else {
       form.partnerCommanderName = card.name
       if (imageUrl) {
@@ -106,7 +109,6 @@ const partner = useCardSearch({
         form.partnerColors = ['C']
       }
     }
-    mergeColors(commander.selectedCard.value, card)
     updateTitleIfDefault(prevDefault, commander.selectedCard.value, card)
   }
 })
@@ -150,8 +152,8 @@ function onTogglePartner(mode: 'partner' | 'background') {
   form.partnerDefaultImageUrl = undefined
   form.backgroundName = undefined
   form.backgroundImageUrl = undefined
+  form.backgroundColors = undefined
   form.backgroundDefaultImageUrl = undefined
-  mergeColors(commander.selectedCard.value, null)
   updateTitleIfDefault(prevDefault, commander.selectedCard.value, null)
   if (partnerMode.value === mode) {
     partnerMode.value = false
@@ -174,15 +176,6 @@ const secondArchetypeOptions = computed(() => {
   if (!archetypeOptions.value) return []
   return archetypeOptions.value.filter(a => a.value !== form.archetypes[0])
 })
-
-const colorOptions = [
-  { label: 'White', value: 'W' },
-  { label: 'Blue', value: 'U' },
-  { label: 'Black', value: 'B' },
-  { label: 'Red', value: 'R' },
-  { label: 'Green', value: 'G' },
-  { label: 'Colorless', value: 'C' }
-]
 
 const submitting = ref(false)
 
@@ -305,11 +298,6 @@ function onSubmit() {
         />
       </UFormField>
     </div>
-
-    <DeckFormColorPicker
-      v-model="form.colors"
-      :color-options="colorOptions"
-    />
 
     <UFormField
       label="Short Description / Lore"

@@ -15,6 +15,11 @@ if (error.value) {
 
 const page = ref(1)
 const size = 12
+const filters = ref<Record<string, string | number | undefined>>({})
+
+watch(filters, () => {
+  page.value = 1
+})
 
 const { data: decksData, status } = await useFetch('/api/decks/search', {
   query: computed(() => ({
@@ -22,9 +27,10 @@ const { data: decksData, status } = await useFetch('/api/decks/search', {
     order: 'desc',
     size,
     userId: profileId,
-    page: page.value
+    page: page.value,
+    ...filters.value
   })),
-  watch: [page]
+  watch: [page, filters]
 })
 
 const decks = computed(() => {
@@ -75,6 +81,12 @@ useSeoMeta({
         ? 'All the deck passports you\'ve created.'
         : `Deck passports created by ${profile?.name}.`"
       icon="i-lucide-layout-grid"
+    />
+
+    <DeckFilters
+      v-model="filters"
+      class="mt-4"
+      :total="decksData?.total"
     />
 
     <DeckList

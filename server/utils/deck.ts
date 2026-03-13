@@ -19,7 +19,7 @@ export async function findOrCreateCommander(commander: { name: string, imageUrl?
   return created!.id
 }
 
-export async function findOrCreateBackground(background: { name: string, imageUrl?: string }) {
+export async function findOrCreateBackground(background: { name: string, imageUrl?: string, colors: string[] }) {
   const [existing] = await db.select()
     .from(backgrounds)
     .where(eq(backgrounds.name, background.name))
@@ -29,7 +29,8 @@ export async function findOrCreateBackground(background: { name: string, imageUr
 
   const [created] = await db.insert(backgrounds).values({
     name: background.name,
-    imageUrl: background.imageUrl ?? null
+    imageUrl: background.imageUrl ?? null,
+    colors: background.colors
   }).returning({ id: backgrounds.id })
 
   return created!.id

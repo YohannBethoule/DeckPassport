@@ -1,5 +1,6 @@
 import type { InsertDeckWithCommander } from '#shared/schemas/deck'
 import type { ManaColor } from '#shared/schemas/commander'
+import { MANA_COLORS } from '#shared/schemas/commander'
 
 type RawDeck = {
   id: number
@@ -10,11 +11,16 @@ type RawDeck = {
   deckListUrl: string | null
   commander: { id: number, name: string, imageUrl: string | null, colors: string[] }
   partnerCommander: { id: number, name: string, imageUrl: string | null, colors: string[] } | null
-  background: { id: number, name: string, imageUrl: string | null } | null
+  background: { id: number, name: string, imageUrl: string | null, colors: string[] } | null
   bracket: { id: number }
   archetypes: { archetypeId: number, archetype: { name: string } }[] | null
   commanderPrints: { commanderId: number, commanderPrintUri: string }[] | null
   backgroundPrints: { backgroundId: number, backgroundPrintUri: string }[] | null
+}
+
+function mergeColors(...colorArrays: (string[] | undefined)[]): ManaColor[] {
+  const colorSet = new Set(colorArrays.flatMap(c => c ?? []))
+  return MANA_COLORS.filter(c => colorSet.has(c)) as ManaColor[]
 }
 
 function getCommanderPrintUri(d: RawDeck, commanderId: number): string | undefined {
@@ -34,7 +40,7 @@ export function toDeckView(d: RawDeck): { deck: InsertDeckWithCommander, archety
       commanderName: d.commander.name,
       imageUrl: commanderPrintUri ?? d.commander.imageUrl ?? '',
       commanderDefaultImageUrl: commanderPrintUri ? (d.commander.imageUrl ?? undefined) : undefined,
-      colors: d.commander.colors as ManaColor[],
+      colors: mergeColors(d.commander.colors, d.partnerCommander?.colors, d.background?.colors),
       title: d.title,
       bracket: d.bracket.id,
       description: d.description,
@@ -47,6 +53,7 @@ export function toDeckView(d: RawDeck): { deck: InsertDeckWithCommander, archety
       partnerColors: d.partnerCommander?.colors as ManaColor[] | undefined,
       backgroundName: d.background?.name,
       backgroundImageUrl: backgroundPrintUri ?? d.background?.imageUrl ?? undefined,
+      backgroundColors: d.background?.colors as ManaColor[] | undefined,
       backgroundDefaultImageUrl: backgroundPrintUri ? (d.background?.imageUrl ?? undefined) : undefined,
       archetypes: d.archetypes?.map(a => a.archetypeId) ?? []
     },

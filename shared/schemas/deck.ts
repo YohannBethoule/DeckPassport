@@ -38,7 +38,8 @@ const partnerFields = z.object({
 
 const backgroundFields = z.object({
   backgroundName: z.string().optional(),
-  backgroundImageUrl: z.url('Must be a valid URL').optional()
+  backgroundImageUrl: z.url('Must be a valid URL').optional(),
+  backgroundColors: z.array(z.enum(MANA_COLORS)).optional()
 })
 
 const printFields = z.object({
@@ -52,12 +53,12 @@ export const insertDeckWithCommanderSchema = commanderFieldsRenamed
   .extend(partnerFields.shape)
   .extend(backgroundFields.shape)
   .extend(printFields.shape)
-  .transform(({ commanderName, imageUrl, colors, commanderDefaultImageUrl, partnerCommanderName, partnerImageUrl, partnerColors, partnerDefaultImageUrl, backgroundName, backgroundImageUrl, backgroundDefaultImageUrl, archetypes, ...deck }) => ({
+  .transform(({ commanderName, imageUrl, colors, commanderDefaultImageUrl, partnerCommanderName, partnerImageUrl, partnerColors, partnerDefaultImageUrl, backgroundName, backgroundImageUrl, backgroundColors, backgroundDefaultImageUrl, archetypes, ...deck }) => ({
     commander: { name: commanderName, imageUrl: commanderDefaultImageUrl ?? imageUrl, colors },
     commanderPrintUri: imageUrl,
     partner: partnerCommanderName ? { name: partnerCommanderName, imageUrl: partnerDefaultImageUrl ?? partnerImageUrl, colors: partnerColors ?? [] } : undefined,
     partnerPrintUri: partnerCommanderName ? partnerImageUrl : undefined,
-    background: backgroundName ? { name: backgroundName, imageUrl: backgroundDefaultImageUrl ?? backgroundImageUrl } : undefined,
+    background: backgroundName ? { name: backgroundName, imageUrl: backgroundDefaultImageUrl ?? backgroundImageUrl, colors: backgroundColors ?? [] } : undefined,
     backgroundPrintUri: backgroundName ? backgroundImageUrl : undefined,
     archetypes: archetypes?.filter(Boolean) ?? [],
     deck
