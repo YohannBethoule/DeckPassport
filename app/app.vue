@@ -21,7 +21,7 @@ const profilePath = computed(() => session.value?.data?.user
 
 const mobileNavItems = computed(() => [
   { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
-  ...(profilePath.value ? [{ label: 'My Profile', to: profilePath.value, icon: 'i-lucide-user' }] : []),
+  ...(profilePath.value ? [{ label: 'My Decks', to: profilePath.value, icon: 'i-lucide-user' }] : []),
   { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
 ])
 
@@ -57,7 +57,7 @@ useSeoMeta({
         <UNavigationMenu
           :items="[
             { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
-            ...(profilePath ? [{ label: 'My Profile', to: profilePath, icon: 'i-lucide-user' }] : []),
+            ...(profilePath ? [{ label: 'My Decks', to: profilePath, icon: 'i-lucide-user' }] : []),
             { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
           ]"
           class="hidden sm:flex"
@@ -66,7 +66,7 @@ useSeoMeta({
           <UDropdownMenu
             :items="[
               [{
-                label: 'My Profile',
+                label: 'My Decks',
                 icon: 'i-lucide-user',
                 onSelect: () => navigateTo(profilePath)
               }],
