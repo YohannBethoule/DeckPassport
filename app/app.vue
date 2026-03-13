@@ -136,12 +136,24 @@ useSeoMeta({
 
       <template #right>
         <UButton
+          to="https://www.buymeacoffee.com/yohannbethoule"
+          target="_blank"
+          icon="i-simple-icons-buymeacoffee"
+          color="neutral"
+          variant="ghost"
+          data-umami-event="donation-link"
+        >
+          <span class="hidden sm:inline">Support the project by buying me a coffee</span>
+          <span class="sm:hidden">Support me</span>
+        </UButton>
+        <UButton
           to="https://github.com/YohannBethoule/DeckPassport"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"
           color="neutral"
           variant="ghost"
+          data-umami-event="github-link"
         />
       </template>
     </UFooter>
