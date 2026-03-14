@@ -1,9 +1,19 @@
 import { toPng } from 'html-to-image'
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 export function useDownloadCard(element: Ref<HTMLElement | null>) {
   const loading = ref(false)
 
-  async function download(filename = 'deck-passport.png') {
+  async function download(deckName?: string) {
+    const filename = deckName ? `${slugify(deckName)}_passport.png` : 'deck-passport.png'
     if (!element.value) return
 
     loading.value = true

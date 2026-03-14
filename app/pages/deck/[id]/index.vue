@@ -85,7 +85,7 @@ function editOrDuplicate() {
           label="Download as Image"
           icon="i-lucide-download"
           :loading="loading"
-          @click="download()"
+          @click="download(deck?.title)"
         />
         <UButton
           :label="isOwner ? 'Edit Deck' : 'Duplicate & Edit'"

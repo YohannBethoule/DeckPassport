@@ -46,7 +46,7 @@ const latestDecks = computed(() => {
       orientation="horizontal"
     >
       <img
-        src="~/assets/images/voltronexample.png"
+        src="~/assets/images/voltronexample.webp"
         alt="example card"
       >
     </UPageSection>
