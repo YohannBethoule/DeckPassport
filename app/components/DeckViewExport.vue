@@ -353,10 +353,8 @@ const fontScale = computed(() => {
   border-radius: 4px;
 }
 
-.archetypes {
-  display: flex;
-  flex-direction: row;
-  gap: 3px;
+.archetypes :first-child {
+  margin-right: 3px;
 }
 
 .core-cards {
@@ -367,11 +365,11 @@ const fontScale = computed(() => {
 
 .core-cards-images {
   display: flex;
-  gap: calc(var(--gap)/2);
+  gap: 5px;
 }
 
 .core-card-image {
-  width: calc(var(--card-width) * 0.35);
+  width: calc(var(--card-width) * 0.33);
   border-radius: calc(var(--card-size) / 50);
   object-fit: contain;
 }

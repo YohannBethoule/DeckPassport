@@ -197,18 +197,18 @@ const fontScale = computed(() => {
 
           <div
             v-if="!compact && deck.coreCards?.length"
-            class="space-y-2"
+            class="space-y-1"
           >
             <h3 class="font-semibold text-dimmed">
               Core Cards
             </h3>
-            <div class="flex gap-3">
+            <div class="flex gap-1">
               <img
                 v-for="card in deck.coreCards"
                 :key="card.name"
                 :src="card.imageUrl"
                 :alt="card.name"
-                class="rounded-lg w-22"
+                class="rounded-lg w-24"
               >
             </div>
           </div>
