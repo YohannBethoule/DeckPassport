@@ -127,8 +127,7 @@ function editOrDuplicate() {
         </template>
       </UModal>
     </UPageBody>
-    <!--    class="fixed -left-2499.75 top-0" -->
-    <div>
+    <div class="fixed -left-2499.75 top-0">
       <DeckViewExport
         ref="exportComponent"
         :deck="deck"
