@@ -43,6 +43,13 @@
       "when": 1773443637717,
       "tag": "0005_late_quicksilver",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773495304922,
+      "tag": "0006_vengeful_scarlet_witch",
+      "breakpoints": true
     }
   ]
 }

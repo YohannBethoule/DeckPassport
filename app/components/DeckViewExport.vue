@@ -21,6 +21,15 @@ const proxiedSecondaryImageUrl = computed(() => {
 })
 
 const hasSecondary = computed(() => !!secondaryName.value)
+const hasCoreCards = computed(() => !!(props.deck.coreCards?.length))
+
+const proxiedCoreCards = computed(() => {
+  if (!props.deck.coreCards?.length) return []
+  return props.deck.coreCards.map(card => ({
+    name: card.name,
+    imageUrl: `/api/image-proxy?url=${encodeURIComponent(card.imageUrl)}`
+  }))
+})
 
 const bracketLabels: Record<number, string> = {
   1: 'Exhibition',
@@ -59,8 +68,13 @@ const titleScale = computed(() => {
   const len = props.deck.title?.length ?? 0
   const shortThreshold = 15
   const longThreshold = 40
-  const minScale = 0.7
-  const maxScale = 1
+  let minScale = 0.7
+  let maxScale = 1
+
+  if (hasCoreCards.value) {
+    minScale -= 0.2
+    maxScale -= 0.25
+  }
 
   if (len < shortThreshold) return maxScale
   if (len > longThreshold) return minScale
@@ -82,6 +96,10 @@ const fontScale = computed(() => {
   if (hasSecondary.value) {
     minScale += 0.2
     maxScale += 0.1
+  }
+  if (hasCoreCards.value) {
+    minScale -= 0.1
+    maxScale -= 0.2
   }
 
   if (len < shortThreshold) return maxScale
@@ -178,6 +196,24 @@ const fontScale = computed(() => {
           <p class="text">
             {{ deck.winCondition }}
           </p>
+        </div>
+
+        <div
+          v-if="proxiedCoreCards.length"
+          class="core-cards"
+        >
+          <h3 class="label">
+            Core Cards
+          </h3>
+          <div class="core-cards-images">
+            <img
+              v-for="card in proxiedCoreCards"
+              :key="card.name"
+              :src="card.imageUrl"
+              :alt="card.name"
+              class="core-card-image"
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -299,7 +335,7 @@ const fontScale = computed(() => {
 
 .label {
   font-weight: 600;
-  font-size: .8em;
+  font-size: .7em;
 }
 
 .qr-section {
@@ -321,5 +357,22 @@ const fontScale = computed(() => {
   display: flex;
   flex-direction: row;
   gap: 3px;
+}
+
+.core-cards {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--gap)/2);
+}
+
+.core-cards-images {
+  display: flex;
+  gap: calc(var(--gap)/2);
+}
+
+.core-card-image {
+  width: calc(var(--card-width) * 0.35);
+  border-radius: calc(var(--card-size) / 50);
+  object-fit: contain;
 }
 </style>

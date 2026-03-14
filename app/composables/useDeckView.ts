@@ -1,4 +1,4 @@
-import type { InsertDeckWithCommander } from '#shared/schemas/deck'
+import type { CoreCard, InsertDeckWithCommander } from '#shared/schemas/deck'
 import type { ManaColor } from '#shared/schemas/commander'
 import { MANA_COLORS } from '#shared/schemas/commander'
 
@@ -7,7 +7,7 @@ type RawDeck = {
   title: string
   description: string
   winCondition: string
-  coreCards: string | null
+  coreCards: CoreCard[] | null
   deckListUrl: string | null
   commander: { id: number, name: string, imageUrl: string | null, colors: string[] }
   partnerCommander: { id: number, name: string, imageUrl: string | null, colors: string[] } | null
@@ -45,7 +45,7 @@ export function toDeckView(d: RawDeck): { deck: InsertDeckWithCommander, archety
       bracket: d.bracket.id,
       description: d.description,
       winCondition: d.winCondition,
-      coreCards: d.coreCards ?? '',
+      coreCards: d.coreCards ?? [],
       deckListUrl: d.deckListUrl ?? '',
       partnerCommanderName: d.partnerCommander?.name,
       partnerImageUrl: partnerPrintUri ?? d.partnerCommander?.imageUrl ?? undefined,

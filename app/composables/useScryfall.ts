@@ -73,6 +73,14 @@ export function useScryfall() {
   const searchCommanders = debouncedSearch('is:commander')
   const searchBackgrounds = debouncedSearch('t:background')
 
+  const debouncedCardSearch = debouncedSearch('')
+
+  function searchCards(query: string, colorIdentity: string[]): Promise<ScryfallCard[]> {
+    const colors = colorIdentity.filter(c => c !== 'C').join('')
+    const colorFilter = colors.length ? `id<=${colors}` : 'id<=C'
+    return debouncedCardSearch(`${colorFilter} legal:commander ${query}`)
+  }
+
   async function fetchCardByName(name: string): Promise<ScryfallCard | null> {
     try {
       return await $fetch<ScryfallCard>(
@@ -95,5 +103,5 @@ export function useScryfall() {
     }
   }
 
-  return { searchCommanders, searchBackgrounds, fetchCardByName, fetchPrints }
+  return { searchCommanders, searchBackgrounds, searchCards, fetchCardByName, fetchPrints }
 }

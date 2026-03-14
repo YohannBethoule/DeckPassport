@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { integer, pgTable, primaryKey, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { integer, jsonb, pgTable, primaryKey, serial, text, timestamp } from 'drizzle-orm/pg-core'
 import { archetypes } from './archetype'
 import { user } from './auth'
 import { backgrounds } from './background'
@@ -16,7 +16,7 @@ export const decks = pgTable('decks', {
   bracketId: integer('bracket_id').notNull().references(() => brackets.id),
   description: text('description').notNull(),
   winCondition: text('win_condition').notNull(),
-  coreCards: text('core_cards'),
+  coreCards: jsonb('core_cards').$type<{ name: string, imageUrl: string }[]>(),
   deckListUrl: text('deck_list_url'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
