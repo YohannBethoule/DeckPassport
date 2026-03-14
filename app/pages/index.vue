@@ -79,16 +79,5 @@ const latestDecks = computed(() => {
         />
       </div>
     </UPageSection>
-    <UPageSection
-      title="What's next ?"
-      headline="Coming soon"
-    >
-      <DevLogList
-        :items="[
-          { title: 'Core Cards', description: 'Show up to 3 significative cards in your deck', icon: 'i-lucide-drama' },
-          { title: 'Customization', description: 'Customize the appearance of the generated passport', icon: 'i-lucide-settings-2' }
-        ]"
-      />
-    </UPageSection>
   </div>
 </template>
