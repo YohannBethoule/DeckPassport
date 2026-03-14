@@ -19,7 +19,7 @@ const form = reactive({
   colors: props.initialValues?.colors ?? [] as ManaColor[],
   description: props.initialValues?.description ?? '',
   winCondition: props.initialValues?.winCondition ?? '',
-  coreCards: props.initialValues?.coreCards ?? '',
+  coreCards: props.initialValues?.coreCards ?? [],
   archetypes: props.initialValues?.archetypes ?? [] as number[],
   deckListUrl: props.initialValues?.deckListUrl ?? '',
   partnerCommanderName: props.initialValues?.partnerCommanderName,
@@ -42,6 +42,15 @@ const partnerMode = ref<PartnerMode>(
 )
 
 const { searchCommanders, searchBackgrounds } = useScryfall()
+
+const deckColorIdentity = computed(() => {
+  const allColors = [
+    ...form.colors,
+    ...(form.partnerColors ?? []),
+    ...(form.backgroundColors ?? [])
+  ]
+  return [...new Set(allColors)]
+})
 
 function updateCommanderColors(mainCard: ScryfallCard | null) {
   const colors = mainCard?.color_identity.filter(
@@ -128,7 +137,6 @@ function onPartnerPrintSelect(print: ScryfallCard) {
   }
 }
 
-// Initialize card searches when editing an existing deck
 if (props.initialValues) {
   onMounted(async () => {
     const promises: Promise<void>[] = []
@@ -330,6 +338,12 @@ function onSubmit() {
         minlength="0"
       />
     </UFormField>
+
+    <DeckFormCoreCards
+      v-if="commander.selectedCard.value"
+      v-model="form.coreCards"
+      :color-identity="deckColorIdentity"
+    />
 
     <UFormField
       label="Deck List URL"

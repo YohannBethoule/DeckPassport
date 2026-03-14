@@ -35,14 +35,20 @@ function lerp(min: number, max: number, t: number) {
   return min + (max - min) * Math.min(Math.max(t, 0), 1)
 }
 
+const hasCoreCards = computed(() => !!(props.deck.coreCards?.length))
 const sizeMultiplier = computed(() => props.compact ? 0.45 : 1)
 
 const titleScale = computed(() => {
   const len = totalTextLength.value
   const shortThreshold = 15
   const longThreshold = 40
-  const minScale = 1.5
-  const maxScale = 2
+  let minScale = 1.5
+  let maxScale = 2
+
+  if (hasCoreCards.value) {
+    minScale -= 0.4
+    maxScale -= 0.5
+  }
 
   let scale: number
   if (len < shortThreshold) scale = maxScale
@@ -68,6 +74,11 @@ const fontScale = computed(() => {
   if (secondaryImageUrl.value) {
     minScale += 0.2
     maxScale += 0.1
+  }
+
+  if (hasCoreCards.value) {
+    minScale -= 0.1
+    maxScale -= 0.2
   }
 
   let scale: number
@@ -182,6 +193,24 @@ const fontScale = computed(() => {
             <p class="whitespace-pre-line">
               {{ deck.winCondition }}
             </p>
+          </div>
+
+          <div
+            v-if="!compact && deck.coreCards?.length"
+            class="space-y-2"
+          >
+            <h3 class="font-semibold text-dimmed">
+              Core Cards
+            </h3>
+            <div class="flex gap-3">
+              <img
+                v-for="card in deck.coreCards"
+                :key="card.name"
+                :src="card.imageUrl"
+                :alt="card.name"
+                class="rounded-lg w-22"
+              >
+            </div>
           </div>
         </div>
       </div>
