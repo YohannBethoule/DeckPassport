@@ -169,18 +169,19 @@ const fontScale = computed(() => {
         </h2>
 
         <div class="badges">
-          <span
-            v-if="!!archetypeNames && archetypeNames.length > 0"
-            class="archetypes badge badge--outline"
-          >
-            <span
-              v-for="name in archetypeNames"
-              :key="name"
-            >{{ name }}</span>
-          </span>
-          <span class="badge">
-            Bracket {{ deck.bracket }} — {{ bracketLabels[deck.bracket] ?? `Bracket ${deck.bracket}` }}
-          </span>
+          <div v-if="!!archetypeNames && archetypeNames.length > 0">
+            <span class="archetypes badge badge--outline">
+              <span
+                v-for="name in archetypeNames"
+                :key="name"
+              >{{ name }}</span>
+            </span>
+          </div>
+          <div>
+            <span class="badge">
+              Bracket {{ deck.bracket }} — {{ bracketLabels[deck.bracket] ?? `Bracket ${deck.bracket}` }}
+            </span>
+          </div>
         </div>
 
         <div v-if="deck.description">
@@ -239,7 +240,8 @@ const fontScale = computed(() => {
   border-radius: 12px;
   border: 1px solid var(--ui-border);
   box-sizing: border-box;
-  font-family: inherit;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: left;
 }
 
 .row {
@@ -311,13 +313,13 @@ const fontScale = computed(() => {
 }
 
 .badge {
+  display: inline-block;
   padding: 6px 12px;
   border-radius: 12px;
   background: color-mix(in oklab, var(--color-primary), transparent 80%);
   color: var(--color-primary);
   font-size: .5em;
   font-weight: 500;
-  width: fit-content;
   white-space: nowrap;
 }
 
