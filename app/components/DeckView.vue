@@ -45,7 +45,7 @@ const titleScale = computed(() => {
   let minScale = 1.5
   let maxScale = 2
 
-  if (hasCoreCards.value) {
+  if (hasCoreCards.value && !props.compact) {
     minScale -= 0.4
     maxScale -= 0.5
   }
@@ -76,7 +76,7 @@ const fontScale = computed(() => {
     maxScale += 0.1
   }
 
-  if (hasCoreCards.value) {
+  if (hasCoreCards.value && !props.compact) {
     minScale -= 0.1
     maxScale -= 0.2
   }
