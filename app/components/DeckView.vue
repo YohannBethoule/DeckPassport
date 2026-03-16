@@ -71,14 +71,18 @@ const fontScale = computed(() => {
   let minScale = 0.7
   let maxScale = 1.4
 
-  if (secondaryImageUrl.value) {
-    minScale += 0.2
-    maxScale += 0.1
-  }
+  if (props.compact) {
+    minScale = 1
+  } else {
+    if (secondaryImageUrl.value) {
+      minScale += 0.2
+      maxScale += 0.1
+    }
 
-  if (hasCoreCards.value && !props.compact) {
-    minScale -= 0.1
-    maxScale -= 0.2
+    if (hasCoreCards.value) {
+      minScale -= 0.1
+      maxScale -= 0.2
+    }
   }
 
   let scale: number
