@@ -2,12 +2,56 @@
 const route = useRoute()
 const profileId = route.params.id as string
 
-const { useSession } = useAuth()
+const { useSession, updateUser } = useAuth()
 const session = useSession()
 
 const isOwnProfile = computed(() => session.value?.data?.user?.id === profileId)
 
-const { data: profile, error } = await useFetch(`/api/user/${profileId}`)
+const { data: profile, error, refresh: refreshProfile } = await useFetch(`/api/user/${profileId}`)
+
+const isEditingName = ref(false)
+const editedName = ref('')
+const nameError = ref('')
+const nameSaving = ref(false)
+
+function startEditingName() {
+  editedName.value = profile.value?.name ?? ''
+  nameError.value = ''
+  isEditingName.value = true
+}
+
+function cancelEditingName() {
+  isEditingName.value = false
+  nameError.value = ''
+}
+
+async function saveName() {
+  const trimmed = editedName.value.trim()
+  if (!trimmed) {
+    nameError.value = 'Name cannot be empty'
+    return
+  }
+  if (trimmed === profile.value?.name) {
+    isEditingName.value = false
+    return
+  }
+
+  nameSaving.value = true
+  nameError.value = ''
+  try {
+    const { error: updateError } = await updateUser({ name: trimmed })
+    if (updateError) {
+      nameError.value = updateError.message ?? 'Failed to update name'
+      return
+    }
+    await refreshProfile()
+    isEditingName.value = false
+  } catch {
+    nameError.value = 'Failed to update name'
+  } finally {
+    nameSaving.value = false
+  }
+}
 
 if (error.value) {
   throw createError({ statusCode: 404, statusMessage: 'User not found' })
@@ -64,9 +108,57 @@ useSeoMeta({
         size="xl"
       />
       <div>
-        <h1 class="text-2xl font-bold">
-          {{ profile?.name }}
-        </h1>
+        <div
+          v-if="isEditingName"
+          class="flex items-center gap-2"
+        >
+          <UInput
+            v-model="editedName"
+            placeholder="Your name"
+            autofocus
+            size="lg"
+            @keyup.enter="saveName"
+            @keyup.escape="cancelEditingName"
+          />
+          <UButton
+            icon="i-lucide-check"
+            color="primary"
+            variant="ghost"
+            size="lg"
+            :loading="nameSaving"
+            @click="saveName"
+          />
+          <UButton
+            icon="i-lucide-x"
+            color="neutral"
+            variant="ghost"
+            size="lg"
+            :disabled="nameSaving"
+            @click="cancelEditingName"
+          />
+        </div>
+        <div
+          v-else
+          class="flex items-center gap-2"
+        >
+          <h1 class="text-2xl font-bold">
+            {{ profile?.name }}
+          </h1>
+          <UButton
+            v-if="isOwnProfile"
+            icon="i-lucide-pencil"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            @click="startEditingName"
+          />
+        </div>
+        <p
+          v-if="nameError"
+          class="text-sm text-red-500 mt-1"
+        >
+          {{ nameError }}
+        </p>
         <p class="text-sm text-muted">
           Member since {{ memberSince }}
         </p>
