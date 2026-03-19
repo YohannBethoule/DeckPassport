@@ -20,7 +20,7 @@ export function useDownloadCard(element: Ref<HTMLElement | null>) {
 
     try {
       const dataUrl = await domToPng(element.value, {
-        scale: 2,
+        scale: 3,
         fetch: {
           requestInit: { mode: 'cors' }
         }

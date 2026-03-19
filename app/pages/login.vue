@@ -9,6 +9,7 @@ const isRegister = ref(false)
 const name = ref('')
 const email = ref('')
 const password = ref('')
+const passwordConfirm = ref('')
 const error = ref('')
 const loading = ref(false)
 
@@ -18,6 +19,10 @@ async function handleSubmit() {
 
   try {
     if (isRegister.value) {
+      if (password.value !== passwordConfirm.value) {
+        error.value = 'Passwords do not match'
+        return
+      }
       const { error: signUpError } = await signUp.email({
         name: name.value,
         email: email.value,
@@ -107,6 +112,20 @@ async function handleGoogleSignIn() {
                 v-model="password"
                 type="password"
                 placeholder="Your password"
+                class="w-full"
+                required
+              />
+            </UFormField>
+
+            <UFormField
+              v-if="isRegister"
+              label="Confirm password"
+              class="w-full"
+            >
+              <UInput
+                v-model="passwordConfirm"
+                type="password"
+                placeholder="Confirm your password"
                 class="w-full"
                 required
               />
