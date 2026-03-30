@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { integer, jsonb, pgTable, primaryKey, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { index, integer, jsonb, pgTable, primaryKey, serial, text, timestamp } from 'drizzle-orm/pg-core'
 import { archetypes } from './archetype'
 import { user } from './auth'
 import { backgrounds } from './background'
@@ -20,13 +20,22 @@ export const decks = pgTable('decks', {
   deckListUrl: text('deck_list_url'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
-})
+}, table => [
+  index('decks_created_at_idx').on(table.createdAt),
+  index('decks_user_id_idx').on(table.userId),
+  index('decks_commander_id_idx').on(table.commanderId),
+  index('decks_partner_commander_id_idx').on(table.partnerCommanderId),
+  index('decks_bracket_id_idx').on(table.bracketId),
+])
 
 export const decksToArchetypes = pgTable('decks_to_archetypes', {
   deckId: integer('deck_id').notNull().references(() => decks.id, { onDelete: 'cascade' }),
   archetypeId: integer('archetype_id').notNull().references(() => archetypes.id),
   order: integer('order').notNull()
-})
+}, table => [
+  index('decks_to_archetypes_deck_id_idx').on(table.deckId),
+  index('decks_to_archetypes_archetype_id_idx').on(table.archetypeId),
+])
 
 export const decksToCommanderPrints = pgTable('decks_to_commander_prints', {
   deckId: integer('deck_id').notNull().references(() => decks.id, { onDelete: 'cascade' }),
