@@ -25,7 +25,7 @@ export const decks = pgTable('decks', {
   index('decks_user_id_idx').on(table.userId),
   index('decks_commander_id_idx').on(table.commanderId),
   index('decks_partner_commander_id_idx').on(table.partnerCommanderId),
-  index('decks_bracket_id_idx').on(table.bracketId),
+  index('decks_bracket_id_idx').on(table.bracketId)
 ])
 
 export const decksToArchetypes = pgTable('decks_to_archetypes', {
@@ -34,7 +34,7 @@ export const decksToArchetypes = pgTable('decks_to_archetypes', {
   order: integer('order').notNull()
 }, table => [
   index('decks_to_archetypes_deck_id_idx').on(table.deckId),
-  index('decks_to_archetypes_archetype_id_idx').on(table.archetypeId),
+  index('decks_to_archetypes_archetype_id_idx').on(table.archetypeId)
 ])
 
 export const decksToCommanderPrints = pgTable('decks_to_commander_prints', {
