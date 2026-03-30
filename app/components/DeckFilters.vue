@@ -40,7 +40,7 @@ const { data: archetypesData } = await useFetch('/api/archetypes')
 
 const bracketOptions = computed(() => {
   return (bracketsData.value || []).map(b => ({
-    label: b.name,
+    label: `${b.id}\u00A0-\u00A0${b.name}`,
     value: b.id
   }))
 })

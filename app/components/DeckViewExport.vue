@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { InsertDeckWithCommander } from '#shared/schemas/deck'
+import type { ExportOptions } from '~/utils/exportOptions'
 import QRCode from 'qrcode'
 
 const props = defineProps<{
   deck: InsertDeckWithCommander
   archetypeNames?: string[]
+  options?: ExportOptions
 }>()
 
 const proxiedImageUrl = computed(() => {
@@ -135,7 +137,7 @@ const fontScale = computed(() => {
           >
         </div>
         <div
-          v-if="qrDataUrl"
+          v-if="options?.showDeckLink && qrDataUrl"
           class="qr-section"
         >
           <h3 class="label">
@@ -218,11 +220,18 @@ const fontScale = computed(() => {
         </div>
       </div>
     </div>
+    <div
+      v-if="options?.showWatermark !== false"
+      class="watermark"
+    >
+      Made with EDH DeckPassport
+    </div>
   </div>
 </template>
 
 <style scoped>
 .card {
+  position: relative;
   --card-width:250px;
   --card-height:calc(var(--card-width)*1.40);
   --padding: calc(var(--card-width)*0.10);
@@ -374,5 +383,13 @@ const fontScale = computed(() => {
   width: calc(var(--card-width) * 0.33);
   border-radius: calc(var(--card-size) / 50);
   object-fit: contain;
+}
+
+.watermark {
+  position: absolute;
+  top: calc(var(--padding) * 0.5);
+  right: var(--padding);
+  margin-top: 0.2em;
+  font-size: 0.4em;
 }
 </style>

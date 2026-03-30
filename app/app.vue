@@ -1,4 +1,6 @@
 <script setup>
+import DonationLink from '~/components/DonationLink.vue'
+
 const { useSession, signOut } = useAuth()
 const session = useSession()
 
@@ -145,17 +147,7 @@ useSeoMeta({
       </template>
 
       <template #right>
-        <UButton
-          to="https://www.buymeacoffee.com/yohannbethoule"
-          target="_blank"
-          icon="i-simple-icons-buymeacoffee"
-          color="neutral"
-          variant="ghost"
-          data-umami-event="donation-link"
-        >
-          <span class="hidden sm:inline">Support the project by buying me a coffee</span>
-          <span class="sm:hidden">Support me</span>
-        </UButton>
+        <DonationLink compact />
         <UButton
           to="https://github.com/YohannBethoule/DeckPassport"
           target="_blank"

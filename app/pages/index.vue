@@ -35,7 +35,6 @@ const latestDecks = computed(() => {
           to="/deck/new"
           trailing-icon="i-lucide-arrow-right"
           size="xl"
-          data-umami-event="create-deck-click"
         />
       </template>
     </UPageHero>

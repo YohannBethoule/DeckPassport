@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { InsertDeckWithCommander } from '#shared/schemas/deck'
+import DeckExportModal from '~/components/DeckExportModal.vue'
 
 const route = useRoute()
 const deckId = Number(route.params.id)
@@ -21,10 +22,7 @@ const deckView = computed(() => rawDeck.value ? toDeckView(rawDeck.value) : null
 const deck = computed(() => deckView.value?.deck ?? null)
 const archetypeNames = computed(() => deckView.value?.archetypeNames ?? [])
 
-const exportComponent = ref<{ $el: HTMLElement } | null>(null)
-const exportRef = computed(() => exportComponent.value?.$el ?? null)
-const { download, loading } = useDownloadCard(exportRef)
-
+const exportModalOpen = ref(false)
 const deleteModalOpen = ref(false)
 const deleting = ref(false)
 
@@ -84,8 +82,7 @@ function editOrDuplicate() {
         <UButton
           label="Download as Image"
           icon="i-lucide-download"
-          :loading="loading"
-          @click="download(deck?.title)"
+          @click="exportModalOpen = true"
         />
         <UButton
           :label="isOwner ? 'Edit Deck' : 'Duplicate & Edit'"
@@ -101,6 +98,9 @@ function editOrDuplicate() {
           variant="outline"
           @click="deleteModalOpen = true"
         />
+      </div>
+      <div class="flex justify-center gap-2 mt-4">
+        <DonationLink />
       </div>
 
       <UModal v-model:open="deleteModalOpen">
@@ -127,12 +127,10 @@ function editOrDuplicate() {
         </template>
       </UModal>
     </UPageBody>
-    <div class="fixed -left-2499.75 top-0">
-      <DeckViewExport
-        ref="exportComponent"
-        :deck="deck"
-        :archetype-names="archetypeNames"
-      />
-    </div>
+    <DeckExportModal
+      v-model:open="exportModalOpen"
+      :deck="deck"
+      :archetype-names="archetypeNames"
+    />
   </UPage>
 </template>

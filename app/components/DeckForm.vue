@@ -364,7 +364,6 @@ function onSubmit() {
         size="lg"
         :disabled="submitting"
         :loading="submitting"
-        data-umami-event="generate-passport-click"
       />
     </div>
   </UForm>
