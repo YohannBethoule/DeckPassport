@@ -192,7 +192,7 @@ const fontScale = computed(() => {
 
           <div class="space-y-1">
             <h3 class="font-semibold text-dimmed">
-              How does it win ?
+              How does it win?
             </h3>
             <p class="whitespace-pre-line">
               {{ deck.winCondition }}
