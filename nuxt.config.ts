@@ -12,7 +12,7 @@ export default defineNuxtConfig({
         {
           'src': '/stats/metrics.js',
           'defer': true,
-          'data-website-id': '4435c17c-b344-4038-8d08-9537caaf234e',
+          'data-website-id': 'f3e30d58-ab90-4749-b1e4-db6e83af12bb',
           'data-host-url': '/api/analytics'
         }
       ]
