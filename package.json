@@ -37,5 +37,12 @@
     "typescript": "^5.9.3",
     "vue-tsc": "^3.2.5"
   },
-  "packageManager": "pnpm@10.30.3"
+  "packageManager": "pnpm@10.30.3",
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": ["linux", "current"],
+      "cpu": ["x64", "current"],
+      "libc": ["glibc", "current"]
+    }
+  }
 }
