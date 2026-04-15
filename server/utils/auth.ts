@@ -10,6 +10,7 @@ function getBaseURL() {
     return `https://${process.env.VERCEL_BRANCH_URL}`
   }
   if (process.env.COOLIFY_URL) {
+    console.log('COOLIFY_URL', process.env.COOLIFY_URL)
     return process.env.COOLIFY_URL
   }
   return 'http://localhost:3000'
