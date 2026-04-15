@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     head: {
       script: [
         {
-          'src': '/stats/script.js',
+          'src': '/stats/metrics.js',
           'defer': true,
           'data-website-id': '4435c17c-b344-4038-8d08-9537caaf234e',
           'data-host-url': '/api/analytics'
@@ -22,8 +22,8 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   routeRules: {
-    '/stats/**': { proxy: 'https://cloud.umami.is/**' },
-    '/api/analytics/**': { proxy: 'https://api-gateway.umami.dev/**' }
+    '/stats/**': { proxy: 'https://umami.yohannbethoule.com/**' },
+    '/api/analytics/**': { proxy: 'https://umami.yohannbethoule.com/**' }
   },
 
   compatibilityDate: '2025-01-15',
