@@ -6,7 +6,8 @@ const session = useSession()
 
 useHead({
   meta: [
-    { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+    { name: 'impact-site-verification', value: '4c126f80-0e83-4090-98f2-6708921ba3c2' },
   ],
   link: [
     { rel: 'icon', href: '/favicon.ico' }
