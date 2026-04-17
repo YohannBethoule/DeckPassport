@@ -26,6 +26,13 @@ export default defineNuxtConfig({
     '/api/analytics/**': { proxy: 'https://umami.yohannbethoule.com/**' }
   },
 
+  runtimeConfig: {
+    public: {
+      tcgplayerImpactUrl: process.env.TCGPLAYER_IMPACT_URL ?? '',
+      cardmarketReferrerId: process.env.CARDMARKET_REFERRER_ID ?? ''
+    }
+  },
+
   compatibilityDate: '2025-01-15',
 
   eslint: {
