@@ -39,6 +39,10 @@ const latestDecks = computed(() => {
       </template>
     </UPageHero>
 
+    <UContainer class="mb-6">
+      <AffiliateBanner placement="homepage" />
+    </UContainer>
+
     <UPageSection
       title="Share it with others"
       icon="i-lucide-share-2"

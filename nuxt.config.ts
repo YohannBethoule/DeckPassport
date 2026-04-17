@@ -21,6 +21,13 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  runtimeConfig: {
+    public: {
+      tcgplayerImpactUrl: process.env.TCGPLAYER_IMPACT_URL ?? '',
+      cardmarketReferrerId: process.env.CARDMARKET_REFERRER_ID ?? ''
+    }
+  },
+
   routeRules: {
     '/stats/**': { proxy: 'https://umami.yohannbethoule.com/**' },
     '/api/analytics/**': { proxy: 'https://umami.yohannbethoule.com/**' }

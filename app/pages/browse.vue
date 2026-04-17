@@ -45,6 +45,11 @@ useSeoMeta({
       :total="data?.total"
     />
 
+    <AffiliateBanner
+      placement="browse-page"
+      class="my-4"
+    />
+
     <DeckList
       v-model:page="page"
       :decks="decks"

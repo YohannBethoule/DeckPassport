@@ -21,6 +21,7 @@ const isOwner = computed(() =>
 const deckView = computed(() => rawDeck.value ? toDeckView(rawDeck.value) : null)
 const deck = computed(() => deckView.value?.deck ?? null)
 const archetypeNames = computed(() => deckView.value?.archetypeNames ?? [])
+const { hasAnyAffiliate } = useAffiliate()
 
 const exportModalOpen = ref(false)
 const deleteModalOpen = ref(false)
@@ -98,6 +99,30 @@ function editOrDuplicate() {
           variant="outline"
           @click="deleteModalOpen = true"
         />
+      </div>
+      <div
+        v-if="hasAnyAffiliate"
+        class="mt-4"
+      >
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <BuyCardLink
+            :card-name="deck.commanderName"
+            placement="deck-main-commander"
+          />
+          <BuyCardLink
+            v-if="deck.partnerCommanderName"
+            :card-name="deck.partnerCommanderName"
+            placement="deck-partner-commander"
+          />
+          <BuyCardLink
+            v-if="deck.backgroundName"
+            :card-name="deck.backgroundName"
+            placement="deck-background"
+          />
+        </div>
+        <p class="text-xs text-center text-toned mt-2">
+          Affiliate disclosure: DeckPassport may earn a commission from these links.
+        </p>
       </div>
       <div class="flex justify-center gap-2 mt-4">
         <DonationLink />
