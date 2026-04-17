@@ -21,16 +21,16 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/stats/**': { proxy: 'https://umami.yohannbethoule.com/**' },
-    '/api/analytics/**': { proxy: 'https://umami.yohannbethoule.com/**' }
-  },
-
   runtimeConfig: {
     public: {
       tcgplayerImpactUrl: process.env.TCGPLAYER_IMPACT_URL ?? '',
       cardmarketReferrerId: process.env.CARDMARKET_REFERRER_ID ?? ''
     }
+  },
+
+  routeRules: {
+    '/stats/**': { proxy: 'https://umami.yohannbethoule.com/**' },
+    '/api/analytics/**': { proxy: 'https://umami.yohannbethoule.com/**' }
   },
 
   compatibilityDate: '2025-01-15',
@@ -42,5 +42,5 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
-  }
+  },
 })
