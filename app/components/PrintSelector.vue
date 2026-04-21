@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { type ScryfallCard, getCardImageUri } from '~/composables/useScryfall'
+import { type ScryfallCard, getCardFaceImageUri } from '~/composables/useScryfall'
 
 defineProps<{
   prints: ScryfallCard[]
   loading: boolean
   selectedImageUrl?: string
+  faceIndex?: number
 }>()
 
 const emit = defineEmits<{
@@ -28,14 +29,14 @@ const emit = defineEmits<{
       :key="print.scryfall_uri"
       type="button"
       class="shrink-0 rounded-lg overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer"
-      :class="getCardImageUri(print) === selectedImageUrl ? 'border-primary ring-2 ring-primary' : 'border-transparent opacity-70 hover:opacity-100'"
+      :class="getCardFaceImageUri(print, faceIndex ?? 0) === selectedImageUrl ? 'border-primary ring-2 ring-primary' : 'border-transparent opacity-70 hover:opacity-100'"
       :title="`${print.set_name} #${print.collector_number}`"
       @click="emit('select', print)"
     >
       <img
-        :src="getCardImageUri(print, 'small')"
+        :src="getCardFaceImageUri(print, faceIndex ?? 0, 'small')"
         :alt="`${print.set_name} #${print.collector_number}`"
-        class="w-24 h-auto"
+        class="w-48 h-auto"
       >
     </button>
   </div>

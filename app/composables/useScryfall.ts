@@ -37,6 +37,18 @@ export function getCardImageUri(card: ScryfallCard, size: keyof ScryfallImageUri
   return card.image_uris?.[size] ?? card.card_faces?.[0]?.image_uris?.[size]
 }
 
+export function getCardFaceImageUri(card: ScryfallCard, faceIndex: number, size: keyof ScryfallImageUris = 'normal'): string | undefined {
+  if (card.card_faces?.[faceIndex]?.image_uris) {
+    return card.card_faces[faceIndex].image_uris?.[size]
+  }
+  return card.image_uris?.[size]
+}
+
+export function isDoubleFacedCard(card: ScryfallCard): boolean {
+  const faces = card.card_faces
+  return !!(faces && faces.length >= 2 && faces[0]?.image_uris && faces[1]?.image_uris)
+}
+
 interface SearchResponse {
   object: string
   total_cards: number

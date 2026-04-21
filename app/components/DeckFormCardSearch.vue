@@ -10,6 +10,8 @@ defineProps<{
   prints: ScryfallCard[]
   loadingPrints: boolean
   selectedImageUrl?: string
+  isDoubleFaced?: boolean
+  faceIndex?: number
 }>()
 
 const emit = defineEmits<{
@@ -17,6 +19,7 @@ const emit = defineEmits<{
   'search': [query: string]
   'select': [name: string]
   'selectPrint': [print: ScryfallCard]
+  'flip': []
 }>()
 </script>
 
@@ -26,14 +29,25 @@ const emit = defineEmits<{
     :name="name"
     :required="name === 'commanderName'"
   >
-    <UInputMenu
-      :model-value="modelValue"
-      :items="searchResults.map((c: ScryfallCard) => c.name)"
-      :placeholder="placeholder"
-      class="w-full"
-      @update:search-term="emit('search', $event)"
-      @update:model-value="(v: string) => { emit('update:modelValue', v); emit('select', v) }"
-    />
+    <div class="flex gap-2 items-center">
+      <UInputMenu
+        :model-value="modelValue"
+        :items="searchResults.map((c: ScryfallCard) => c.name)"
+        :placeholder="placeholder"
+        class="flex-1"
+        @update:search-term="emit('search', $event)"
+        @update:model-value="(v: string) => { emit('update:modelValue', v); emit('select', v) }"
+      />
+      <UButton
+        v-if="isDoubleFaced"
+        type="button"
+        icon="i-lucide-flip-horizontal-2"
+        variant="outline"
+        size="sm"
+        title="Flip card"
+        @click="emit('flip')"
+      />
+    </div>
   </UFormField>
 
   <UFormField
@@ -45,6 +59,7 @@ const emit = defineEmits<{
       :prints="prints"
       :loading="loadingPrints"
       :selected-image-url="selectedImageUrl"
+      :face-index="faceIndex"
       @select="emit('selectPrint', $event)"
     />
   </UFormField>
