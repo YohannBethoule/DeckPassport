@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { ScryfallCard } from '~/composables/useScryfall'
-import { getCardImageUri } from '~/composables/useScryfall'
+import { type ScryfallCard, getCardImageUri } from '~/composables/useScryfall'
 import { MAX_CORE_CARDS, type CoreCard } from '#shared/schemas/deck'
 import type { ManaColor } from '#shared/schemas/commander'
 
@@ -13,10 +12,14 @@ const emit = defineEmits<{
   'update:modelValue': [value: CoreCard[]]
 }>()
 
-const { searchCards } = useScryfall()
+const { searchCards, fetchPrints } = useScryfall()
 
 const searchTerm = ref('')
 const searchResults = ref<ScryfallCard[]>([])
+const pendingCard = ref<ScryfallCard | null>(null)
+const pendingImageUrl = ref<string | undefined>()
+const prints = ref<ScryfallCard[]>([])
+const loadingPrints = ref(false)
 
 const canAdd = computed(() => props.modelValue.length < MAX_CORE_CARDS)
 
@@ -29,19 +32,45 @@ async function onSearch(query: string) {
   searchResults.value = await searchCards(query, props.colorIdentity)
 }
 
-function onSelect(name: string) {
+async function onSelect(name: string) {
   if (!name || !canAdd.value) return
   const card = searchResults.value.find(c => c.name === name)
   if (!card) return
 
-  if (props.modelValue.some(c => c.name === card.name)) return
-
-  const imageUrl = getCardImageUri(card)
-  if (!imageUrl) return
-
-  emit('update:modelValue', [...props.modelValue, { name: card.name, imageUrl }])
-  searchTerm.value = ''
+  pendingCard.value = card
+  pendingImageUrl.value = getCardImageUri(card)
   searchResults.value = []
+  searchTerm.value = ''
+
+  prints.value = []
+  if (card.prints_search_uri) {
+    loadingPrints.value = true
+    prints.value = await fetchPrints(card.prints_search_uri)
+    loadingPrints.value = false
+  }
+}
+
+function onSelectPrint(print: ScryfallCard) {
+  const imageUrl = getCardImageUri(print)
+  if (imageUrl) pendingImageUrl.value = imageUrl
+  confirmAdd()
+}
+
+function confirmAdd() {
+  const card = pendingCard.value
+  const imageUrl = pendingImageUrl.value
+  if (!card || !imageUrl) return
+  if (!props.modelValue.some(c => c.name === card.name)) {
+    emit('update:modelValue', [...props.modelValue, { name: card.name, imageUrl }])
+  }
+  clearPending()
+}
+
+function clearPending() {
+  pendingCard.value = null
+  pendingImageUrl.value = undefined
+  prints.value = []
+  loadingPrints.value = false
 }
 
 function onRemove(index: number) {
@@ -82,7 +111,7 @@ function onRemove(index: number) {
       </div>
 
       <UInputMenu
-        v-if="canAdd"
+        v-if="canAdd && !pendingCard"
         :model-value="searchTerm"
         :items="searchResults.map(c => c.name)"
         placeholder="Search for a card..."
@@ -90,6 +119,38 @@ function onRemove(index: number) {
         @update:search-term="onSearch"
         @update:model-value="onSelect"
       />
+
+      <div
+        v-if="pendingCard"
+        class="space-y-2 border border-default rounded-lg p-3"
+      >
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium flex-1">{{ pendingCard.name }}</span>
+          <UButton
+            type="button"
+            size="xs"
+            label="Add"
+            icon="i-lucide-plus"
+            :disabled="!pendingImageUrl"
+            @click="confirmAdd"
+          />
+          <UButton
+            type="button"
+            size="xs"
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-x"
+            @click="clearPending"
+          />
+        </div>
+        <PrintSelector
+          v-if="prints.length > 0 || loadingPrints"
+          :prints="prints"
+          :loading="loadingPrints"
+          :selected-image-url="pendingImageUrl"
+          @select="onSelectPrint"
+        />
+      </div>
     </div>
   </UFormField>
 </template>
