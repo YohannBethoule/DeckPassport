@@ -1,4 +1,4 @@
-import { type ScryfallCard, getCardImageUri } from '~/composables/useScryfall'
+import { type ScryfallCard, getCardImageUri, getCardFaceImageUri, isDoubleFacedCard } from '~/composables/useScryfall'
 
 interface UseCardSearchOptions {
   searchFn: (query: string) => Promise<ScryfallCard[]>
@@ -12,6 +12,11 @@ export function useCardSearch({ searchFn, onSelect }: UseCardSearchOptions) {
   const selectedCard = ref<ScryfallCard | null>(null)
   const prints = ref<ScryfallCard[]>([])
   const loadingPrints = ref(false)
+  const currentFaceIndex = ref(0)
+
+  const isDoubleFaced = computed(() =>
+    selectedCard.value ? isDoubleFacedCard(selectedCard.value) : false
+  )
 
   async function onSearch(query: string) {
     searchResults.value = await searchFn(query)
@@ -23,6 +28,7 @@ export function useCardSearch({ searchFn, onSelect }: UseCardSearchOptions) {
     if (!card) return
 
     selectedCard.value = card
+    currentFaceIndex.value = 0
     const imageUrl = getCardImageUri(card)
     onSelect?.(card, imageUrl)
 
@@ -48,13 +54,21 @@ export function useCardSearch({ searchFn, onSelect }: UseCardSearchOptions) {
   }
 
   function selectPrint(print: ScryfallCard): string | undefined {
+    currentFaceIndex.value = 0
     return getCardImageUri(print)
+  }
+
+  function flip(): string | undefined {
+    if (!selectedCard.value || !isDoubleFaced.value) return
+    currentFaceIndex.value = currentFaceIndex.value === 0 ? 1 : 0
+    return getCardFaceImageUri(selectedCard.value, currentFaceIndex.value)
   }
 
   function clear() {
     selectedCard.value = null
     searchResults.value = []
     prints.value = []
+    currentFaceIndex.value = 0
   }
 
   return {
@@ -62,9 +76,12 @@ export function useCardSearch({ searchFn, onSelect }: UseCardSearchOptions) {
     selectedCard,
     prints,
     loadingPrints,
+    currentFaceIndex,
+    isDoubleFaced,
     onSearch,
     onCardSelect,
     selectPrint,
+    flip,
     initializeFromName,
     clear
   }

@@ -137,6 +137,21 @@ function onPartnerPrintSelect(print: ScryfallCard) {
   }
 }
 
+function onCommanderFlip() {
+  const imageUrl = commander.flip()
+  if (imageUrl) form.imageUrl = imageUrl
+}
+
+function onPartnerFlip() {
+  const imageUrl = partner.flip()
+  if (!imageUrl) return
+  if (partnerMode.value === BACKGROUND) {
+    form.backgroundImageUrl = imageUrl
+  } else {
+    form.partnerImageUrl = imageUrl
+  }
+}
+
 if (props.initialValues) {
   onMounted(async () => {
     const promises: Promise<void>[] = []
@@ -213,9 +228,12 @@ function onSubmit() {
       :prints="commander.prints.value"
       :loading-prints="commander.loadingPrints.value"
       :selected-image-url="form.imageUrl"
+      :is-double-faced="commander.isDoubleFaced.value"
+      :face-index="commander.currentFaceIndex.value"
       @search="commander.onSearch"
       @select="commander.onCardSelect"
       @select-print="onCommanderPrintSelect"
+      @flip="onCommanderFlip"
     />
 
     <DeckFormPartnerToggle
@@ -233,9 +251,12 @@ function onSubmit() {
         :prints="partner.prints.value"
         :loading-prints="partner.loadingPrints.value"
         :selected-image-url="form.partnerImageUrl"
+        :is-double-faced="partner.isDoubleFaced.value"
+        :face-index="partner.currentFaceIndex.value"
         @search="partner.onSearch"
         @select="partner.onCardSelect"
         @select-print="onPartnerPrintSelect"
+        @flip="onPartnerFlip"
       />
     </template>
 
@@ -249,9 +270,12 @@ function onSubmit() {
         :prints="partner.prints.value"
         :loading-prints="partner.loadingPrints.value"
         :selected-image-url="form.backgroundImageUrl"
+        :is-double-faced="partner.isDoubleFaced.value"
+        :face-index="partner.currentFaceIndex.value"
         @search="partner.onSearch"
         @select="partner.onCardSelect"
         @select-print="onPartnerPrintSelect"
+        @flip="onPartnerFlip"
       />
     </template>
 
