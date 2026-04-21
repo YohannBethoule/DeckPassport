@@ -53,7 +53,6 @@ async function onSelect(name: string) {
 function onSelectPrint(print: ScryfallCard) {
   const imageUrl = getCardImageUri(print)
   if (imageUrl) pendingImageUrl.value = imageUrl
-  confirmAdd()
 }
 
 function confirmAdd() {
