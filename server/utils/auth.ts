@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { db } from '../database'
+import type { H3Event } from 'h3'
 
 export const auth = betterAuth({
   baseURL: {
@@ -26,3 +27,11 @@ export const auth = betterAuth({
     }
   }
 })
+
+export async function requireAuth(event: H3Event) {
+  const session = await auth.api.getSession({ headers: event.headers }).catch(() => null)
+  if (!session?.user?.id) {
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+  }
+  return session.user
+}
