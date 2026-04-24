@@ -1,7 +1,7 @@
 import { relations } from 'drizzle-orm'
 import { index, pgTable, primaryKey, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
 import { user } from './auth'
-import { FRIEND_REQUEST_STATUS, FRIEND_REQUEST_STATUSES } from '#shared/schemas/social'
+import { FRIEND_REQUEST_STATUS, FRIEND_REQUEST_STATUSES } from '../../../shared/schemas/social'
 
 export const friendRequests = pgTable('friend_requests', {
   id: serial('id').primaryKey(),
