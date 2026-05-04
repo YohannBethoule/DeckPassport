@@ -24,6 +24,7 @@ const profilePath = computed(() => session.value?.data?.user
 const mobileNavItems = computed(() => [
   { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
   ...(profilePath.value ? [{ label: 'My Decks', to: profilePath.value, icon: 'i-lucide-user' }] : []),
+  { label: 'Social', to: '/social', icon: 'i-lucide-users' },
   { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
 ])
 
@@ -71,6 +72,11 @@ useSeoMeta({
                 label: 'My Decks',
                 icon: 'i-lucide-user',
                 onSelect: () => navigateTo(profilePath)
+              }],
+              [{
+                label: 'Social',
+                icon: 'i-lucide-users',
+                onSelect: () => navigateTo('/social')
               }],
               [{
                 label: 'Sign out',

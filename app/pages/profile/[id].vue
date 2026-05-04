@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { FRIENDSHIP_STATUS, type FriendshipStatusResponse } from '#shared/schemas/social'
+import FriendshipButton from '~/components/FriendshipButton.vue'
+
+const { addFriend, acceptRequest, rejectRequest, removeFriend } = useFriendshipActions()
+
 const route = useRoute()
 const profileId = route.params.id as string
 
@@ -6,6 +11,38 @@ const { useSession, updateUser } = useAuth()
 const session = useSession()
 
 const isOwnProfile = computed(() => session.value?.data?.user?.id === profileId)
+
+const friendshipStatus = ref<FriendshipStatusResponse>({ status: FRIENDSHIP_STATUS.NONE })
+const isFriendshipRefreshing = ref(false)
+
+async function refreshFriendshipStatus() {
+  const data = await $fetch<FriendshipStatusResponse>(`/api/friends/${profileId}/status`).catch(() => null)
+  if (data) friendshipStatus.value = data
+}
+
+if (!isOwnProfile.value) {
+  await refreshFriendshipStatus()
+}
+
+async function handleFriendshipAction(action: 'add' | 'accept' | 'reject' | 'remove') {
+  isFriendshipRefreshing.value = true
+  switch (action) {
+    case 'add':
+      await addFriend(profileId)
+      break
+    case 'accept':
+      if (friendshipStatus.value.requestId) await acceptRequest(friendshipStatus.value.requestId)
+      break
+    case 'reject':
+      if (friendshipStatus.value.requestId) await rejectRequest(friendshipStatus.value.requestId)
+      break
+    case 'remove':
+      await removeFriend(profileId)
+      break
+  }
+  await refreshFriendshipStatus()
+  isFriendshipRefreshing.value = false
+}
 
 const { data: profile, error, refresh: refreshProfile } = await useFetch(`/api/user/${profileId}`)
 
@@ -162,6 +199,20 @@ useSeoMeta({
         <p class="text-sm text-muted">
           Member since {{ memberSince }}
         </p>
+      </div>
+
+      <div
+        v-if="!isOwnProfile"
+        class="ml-auto"
+      >
+        <FriendshipButton
+          :status="friendshipStatus.status"
+          :loading="isFriendshipRefreshing"
+          @add="handleFriendshipAction('add')"
+          @accept="handleFriendshipAction('accept')"
+          @reject="handleFriendshipAction('reject')"
+          @remove="handleFriendshipAction('remove')"
+        />
       </div>
     </div>
 
