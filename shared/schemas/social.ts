@@ -30,7 +30,7 @@ export const friendRequestsSchema = z.object({
 })
 
 export const FRIENDSHIP_STATUS = {
-  FRIENDS: 'friends',
+  FRIENDS: 'social',
   REQUEST_SENT: 'sent',
   REQUEST_RECEIVED: 'received',
   NONE: 'none'
@@ -45,3 +45,21 @@ export const friendshipStatusResponseSchema = z.object({
 })
 
 export type FriendshipStatusResponse = z.infer<typeof friendshipStatusResponseSchema>
+
+export const friendSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  image: z.string().nullable()
+})
+export type FriendSummary = z.infer<typeof friendSummarySchema>
+
+export const friendRequestBaseSchema = z.object({
+  id: z.number(),
+  senderId: z.string(),
+  receiverId: z.string(),
+  status: z.enum(FRIEND_REQUEST_STATUSES),
+  createdAt: z.date(),
+  updatedAt: z.date()
+})
+export type SentFriendRequest = z.infer<typeof friendRequestBaseSchema> & { receiver: FriendSummary }
+export type ReceivedFriendRequest = z.infer<typeof friendRequestBaseSchema> & { sender: FriendSummary }

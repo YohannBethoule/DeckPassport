@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     findFriendRequestFromFriendship(userId, receiverId, FRIEND_REQUEST_STATUS.PENDING)
   ])
   if (friendshipExist) {
-    throw createError({ statusCode: 409, statusText: 'You are already friends with this user' })
+    throw createError({ statusCode: 409, statusText: 'You are already social with this user' })
   }
   if (friendRequest) {
     throw createError({ statusCode: 409, statusText: 'Friend request already exists' })

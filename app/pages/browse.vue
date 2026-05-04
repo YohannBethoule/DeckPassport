@@ -37,7 +37,6 @@ useSeoMeta({
     <UPageHeader
       title="Browse Decks"
       description="Explore deck passports created by the community."
-      icon="i-lucide-search"
     />
 
     <DeckFilters

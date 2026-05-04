@@ -2,8 +2,9 @@ import { requireAuth } from '#server/utils/auth'
 import { db } from '#server/database'
 import { friendships } from '#server/database/schema'
 import { eq } from 'drizzle-orm'
+import type { FriendSummary } from '#shared/schemas/social'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<FriendSummary[]> => {
   const user = await requireAuth(event)
 
   const friends = await db.query.friendships.findMany({
