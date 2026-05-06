@@ -42,14 +42,13 @@ const emit = defineEmits<{
     />
   </div>
   <UButton
-    v-else-if="true"
+    v-else-if="status === FRIENDSHIP_STATUS.NONE"
     label="Add friend"
     icon="i-lucide-user-plus"
     variant="solid"
     :loading="loading"
     @click="emit('add')"
   />
-  <!--    v-else-if="status === FRIENDSHIP_STATUS.NONE" -->
 
   <ConfirmationModal
     v-else-if="status === FRIENDSHIP_STATUS.FRIENDS"
