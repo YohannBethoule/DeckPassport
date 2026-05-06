@@ -3,7 +3,7 @@ import { FRIEND_REQUEST_STATUS, respondToFriendRequestSchema } from '#shared/sch
 import { db } from '#server/database'
 import { friendRequests, friendships } from '#server/database/schema'
 import type { InferSelectModel } from 'drizzle-orm'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 type FriendRequest = InferSelectModel<typeof friendRequests>
 
@@ -60,17 +60,30 @@ async function validateFriendRequest(request: FriendRequest | undefined, userId:
 
 async function acceptFriendRequest(id: number, senderId: string, receiverId: string) {
   await db.transaction(async (tx) => {
-    await tx.update(friendRequests).set({ status: FRIEND_REQUEST_STATUS.ACCEPTED, updatedAt: new Date() }).where(eq(friendRequests.id, id))
-    // Insert 2 rows in the friendships table: one each way (both directions: (userId, friendId) and (friendId, userId))
-    await tx.insert(friendships).values([{ userId: senderId, friendId: receiverId }, { userId: receiverId, friendId: senderId }])
+    const [updated] = await tx.update(friendRequests)
+      .set({ status: FRIEND_REQUEST_STATUS.ACCEPTED, updatedAt: new Date() })
+      .where(and(eq(friendRequests.id, id), eq(friendRequests.status, FRIEND_REQUEST_STATUS.PENDING)))
+      .returning({ id: friendRequests.id })
+
+    if (!updated) {
+      throw createError({ statusCode: 409, statusMessage: 'Friend request has already been acted on' })
+    }
+
+    // onConflictDoNothing handles the case where both users sent each other a request simultaneously
+    // and the friendship was already created when the other request was accepted
+    await tx.insert(friendships)
+      .values([{ userId: senderId, friendId: receiverId }, { userId: receiverId, friendId: senderId }])
+      .onConflictDoNothing()
   })
 }
 
 async function declineFriendRequest(id: number) {
-  await db.update(friendRequests)
-    .set({
-      status: FRIEND_REQUEST_STATUS.REJECTED,
-      updatedAt: new Date()
-    })
-    .where(eq(friendRequests.id, id))
+  const [updated] = await db.update(friendRequests)
+    .set({ status: FRIEND_REQUEST_STATUS.REJECTED, updatedAt: new Date() })
+    .where(and(eq(friendRequests.id, id), eq(friendRequests.status, FRIEND_REQUEST_STATUS.PENDING)))
+    .returning({ id: friendRequests.id })
+
+  if (!updated) {
+    throw createError({ statusCode: 409, statusMessage: 'Friend request has already been acted on' })
+  }
 }
