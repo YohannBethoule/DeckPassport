@@ -30,7 +30,7 @@ export const friendRequestsSchema = z.object({
 })
 
 export const FRIENDSHIP_STATUS = {
-  FRIENDS: 'social',
+  FRIENDS: 'friends',
   REQUEST_SENT: 'sent',
   REQUEST_RECEIVED: 'received',
   NONE: 'none'

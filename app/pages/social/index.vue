@@ -4,7 +4,7 @@ import FriendshipButton from '~/components/FriendshipButton.vue'
 import { FRIEND_REQUEST_TYPE, FRIENDSHIP_STATUS } from '#shared/schemas/social'
 import type { FriendSummary, ReceivedFriendRequest, SentFriendRequest } from '#shared/schemas/social'
 
-const { removeFriend, acceptRequest, rejectRequest } = useFriendshipActions()
+const { removeFriend, acceptRequest, rejectRequest, cancelRequest } = useFriendshipActions()
 
 const { data: friends, refresh: refreshFriends } = await useFetch<FriendSummary[]>('/api/friends', {
   default: () => []
@@ -13,32 +13,56 @@ const { data: receivedRequests, refresh: refreshReceivedRequests } = await useFe
   default: () => [],
   query: { type: FRIEND_REQUEST_TYPE.RECEIVED }
 })
-const { data: sentRequests } = await useFetch<SentFriendRequest[]>('/api/friends/requests', {
+const { data: sentRequests, refresh: refreshSentRequests } = await useFetch<SentFriendRequest[]>('/api/friends/requests', {
   default: () => [],
   query: { type: FRIEND_REQUEST_TYPE.SENT }
 })
 
-const processingId = ref<string | number | null>(null)
+type ProcessingAction = { id: string | number, type: 'remove' | 'accept' | 'reject' | 'cancel' }
+const processingAction = ref<ProcessingAction | null>(null)
+
+function isProcessing(id: string | number, type: ProcessingAction['type']) {
+  return processingAction.value?.id === id && processingAction.value?.type === type
+}
 
 async function handleRemoveFriend(friendId: string) {
-  processingId.value = friendId
-  await removeFriend(friendId)
-  await refreshFriends()
-  processingId.value = null
+  processingAction.value = { id: friendId, type: 'remove' }
+  try {
+    await removeFriend(friendId)
+    await refreshFriends()
+  } finally {
+    processingAction.value = null
+  }
 }
 
 async function handleAcceptRequest(requestId: number) {
-  processingId.value = requestId
-  await acceptRequest(requestId)
-  await Promise.all([refreshReceivedRequests(), refreshFriends()])
-  processingId.value = null
+  processingAction.value = { id: requestId, type: 'accept' }
+  try {
+    await acceptRequest(requestId)
+    await Promise.all([refreshReceivedRequests(), refreshFriends()])
+  } finally {
+    processingAction.value = null
+  }
 }
 
 async function handleRejectRequest(requestId: number) {
-  processingId.value = requestId
-  await rejectRequest(requestId)
-  await refreshReceivedRequests()
-  processingId.value = null
+  processingAction.value = { id: requestId, type: 'reject' }
+  try {
+    await rejectRequest(requestId)
+    await refreshReceivedRequests()
+  } finally {
+    processingAction.value = null
+  }
+}
+
+async function handleCancelRequest(requestId: number) {
+  processingAction.value = { id: requestId, type: 'cancel' }
+  try {
+    await cancelRequest(requestId)
+    await refreshSentRequests()
+  } finally {
+    processingAction.value = null
+  }
 }
 </script>
 
@@ -48,6 +72,42 @@ async function handleRejectRequest(requestId: number) {
       title="Community"
       description="Put the Gathering at the center of the Magic."
     />
+
+    <UPageSection
+      v-if="receivedRequests.length || sentRequests.length"
+      title="Friend Requests"
+    >
+      <UPageList divide>
+        <div
+          v-for="request in receivedRequests"
+          :key="request.id"
+          class="flex justify-between items-center"
+        >
+          <FriendCard :friend="request.sender" />
+          <FriendshipButton
+            :status="FRIENDSHIP_STATUS.REQUEST_RECEIVED"
+            :loading-accept="isProcessing(request.id, 'accept')"
+            :loading-reject="isProcessing(request.id, 'reject')"
+            @accept="handleAcceptRequest(request.id)"
+            @reject="handleRejectRequest(request.id)"
+          />
+        </div>
+      </UPageList>
+      <UPageList divide>
+        <div
+          v-for="request in sentRequests"
+          :key="request.id"
+          class="flex justify-between items-center"
+        >
+          <FriendCard :friend="request.receiver" />
+          <FriendshipButton
+            :status="FRIENDSHIP_STATUS.REQUEST_SENT"
+            :loading="isProcessing(request.id, 'cancel')"
+            @cancel="handleCancelRequest(request.id)"
+          />
+        </div>
+      </UPageList>
+    </UPageSection>
 
     <UPageSection
       title="My Friends"
@@ -62,40 +122,9 @@ async function handleRejectRequest(requestId: number) {
           <FriendCard :friend="friend" />
           <FriendshipButton
             :status="FRIENDSHIP_STATUS.FRIENDS"
-            :loading="processingId === friend.id"
+            :loading="isProcessing(friend.id, 'remove')"
             @remove="handleRemoveFriend(friend.id)"
           />
-        </div>
-      </UPageList>
-    </UPageSection>
-
-    <UPageSection
-      title="Friend Requests"
-      :description="(!receivedRequests.length && !sentRequests.length) ? 'No pending friend requests.' : undefined"
-    >
-      <UPageList divide>
-        <div
-          v-for="request in receivedRequests"
-          :key="request.id"
-          class="flex justify-between items-center"
-        >
-          <FriendCard :friend="request.sender" />
-          <FriendshipButton
-            :status="FRIENDSHIP_STATUS.REQUEST_RECEIVED"
-            :loading="processingId === request.id"
-            @accept="handleAcceptRequest(request.id)"
-            @reject="handleRejectRequest(request.id)"
-          />
-        </div>
-      </UPageList>
-      <UPageList divide>
-        <div
-          v-for="request in sentRequests"
-          :key="request.id"
-          class="flex justify-between items-center"
-        >
-          <FriendCard :friend="request.receiver" />
-          <FriendshipButton :status="FRIENDSHIP_STATUS.REQUEST_SENT" />
         </div>
       </UPageList>
     </UPageSection>

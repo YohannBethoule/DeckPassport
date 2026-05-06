@@ -7,10 +7,7 @@ import { and, eq } from 'drizzle-orm'
 import { findFriendRequestFromFriendship } from '#server/utils/social'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-
-  const result = await sendFriendRequestSchema.parseAsync(body)
-  const { receiverId } = result
+  const { receiverId } = await readValidatedBody(event, body => sendFriendRequestSchema.parseAsync(body))
 
   const user = await requireAuth(event)
   const userId = user.id
@@ -18,7 +15,7 @@ export default defineEventHandler(async (event) => {
   if (userId === receiverId) {
     throw createError({
       status: 400,
-      statusText: 'You can\'t send a friend request to yourself'
+      statusMessage: 'You can\'t send a friend request to yourself'
     })
   }
 
@@ -27,10 +24,10 @@ export default defineEventHandler(async (event) => {
     findFriendRequestFromFriendship(userId, receiverId, FRIEND_REQUEST_STATUS.PENDING)
   ])
   if (friendshipExist) {
-    throw createError({ statusCode: 409, statusText: 'You are already social with this user' })
+    throw createError({ statusCode: 409, statusMessage: 'You are already social with this user' })
   }
   if (friendRequest) {
-    throw createError({ statusCode: 409, statusText: 'Friend request already exists' })
+    throw createError({ statusCode: 409, statusMessage: 'Friend request already exists' })
   }
 
   try {
@@ -44,7 +41,7 @@ export default defineEventHandler(async (event) => {
     return created!.id
   } catch (err) {
     if (err instanceof Error && 'code' in err && err.code === PG_ERROR.FOREIGN_KEY_VIOLATION) {
-      throw createError({ statusCode: 404, statusText: 'User not found' })
+      throw createError({ statusCode: 404, statusMessage: 'User not found' })
     }
     throw err
   }

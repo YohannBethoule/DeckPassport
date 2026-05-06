@@ -14,13 +14,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid request ID' })
   }
 
-  const body = await readBody(event)
-
-  const result = await respondToFriendRequestSchema.safeParseAsync(body)
-  if (!result.success) {
-    throw createError({ statusCode: 400, statusText: 'Invalid request body' })
-  }
-  const { status } = result.data
+  const { status } = await readValidatedBody(event, body => respondToFriendRequestSchema.parseAsync(body))
 
   const user = await requireAuth(event)
 
@@ -45,21 +39,21 @@ async function validateFriendRequest(request: FriendRequest | undefined, userId:
   if (!request) {
     throw createError({
       statusCode: 404,
-      statusText: 'Friend request not found'
+      statusMessage: 'Friend request not found'
     })
   }
 
   if (request.status !== FRIEND_REQUEST_STATUS.PENDING) {
     throw createError({
       statusCode: 409,
-      statusText: 'Friend request has already been acted on'
+      statusMessage: 'Friend request has already been acted on'
     })
   }
 
   if (request.receiverId !== userId) {
     throw createError({
       statusCode: 403,
-      statusText: 'You can\'t update this request'
+      statusMessage: 'You can\'t update this request'
     })
   }
 }

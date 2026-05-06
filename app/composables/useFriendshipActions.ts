@@ -13,9 +13,13 @@ export function useFriendshipActions() {
     await $fetch(`/api/friends/requests/${requestId}`, { method: 'PUT', body: { status: FRIEND_REQUEST_STATUS.REJECTED } })
   }
 
+  async function cancelRequest(requestId: number) {
+    await $fetch(`/api/friends/requests/${requestId}`, { method: 'DELETE' })
+  }
+
   async function removeFriend(profileId: string) {
     await $fetch(`/api/friends/${profileId}`, { method: 'DELETE' })
   }
 
-  return { addFriend, acceptRequest, rejectRequest, removeFriend }
+  return { addFriend, acceptRequest, rejectRequest, cancelRequest, removeFriend }
 }

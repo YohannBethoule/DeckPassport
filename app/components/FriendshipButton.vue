@@ -2,15 +2,18 @@
 import { FRIENDSHIP_STATUS, type FriendshipStatus } from '#shared/schemas/social'
 import ConfirmationModal from '~/components/ConfirmationModal.vue'
 
-const { status, loading = false } = defineProps<{
+const { status, loading = false, loadingAccept = false, loadingReject = false } = defineProps<{
   status: FriendshipStatus
   loading?: boolean
+  loadingAccept?: boolean
+  loadingReject?: boolean
 }>()
 
 const emit = defineEmits<{
   add: []
   accept: []
   reject: []
+  cancel: []
   remove: []
 }>()
 </script>
@@ -24,7 +27,8 @@ const emit = defineEmits<{
       label="Accept"
       icon="i-lucide-check"
       variant="solid"
-      :loading="loading"
+      :loading="loadingAccept"
+      :disabled="loadingReject"
       @click="emit('accept')"
     />
     <UButton
@@ -32,7 +36,8 @@ const emit = defineEmits<{
       icon="i-lucide-x"
       color="error"
       variant="soft"
-      :loading="loading"
+      :loading="loadingReject"
+      :disabled="loadingAccept"
       @click="emit('reject')"
     />
   </div>
@@ -60,15 +65,20 @@ const emit = defineEmits<{
       />
     </template>
   </ConfirmationModal>
-  <UButton
+
+  <ConfirmationModal
     v-else-if="status === FRIENDSHIP_STATUS.REQUEST_SENT"
-    label="Invite sent"
-    icon="i-lucide-hourglass"
-    variant="soft"
-    disabled
-  />
+    description="Are you sure you want to cancel this friend request?"
+    :on-confirm="() => emit('cancel')"
+  >
+    <template #button>
+      <UButton
+        label="Cancel request"
+        icon="i-lucide-x"
+        variant="soft"
+        color="error"
+        :loading="loading"
+      />
+    </template>
+  </ConfirmationModal>
 </template>
-
-<style scoped>
-
-</style>

@@ -2,7 +2,7 @@
 import { FRIENDSHIP_STATUS, type FriendshipStatusResponse } from '#shared/schemas/social'
 import FriendshipButton from '~/components/FriendshipButton.vue'
 
-const { addFriend, acceptRequest, rejectRequest, removeFriend } = useFriendshipActions()
+const { addFriend, acceptRequest, rejectRequest, cancelRequest, removeFriend } = useFriendshipActions()
 
 const route = useRoute()
 const profileId = route.params.id as string
@@ -24,7 +24,7 @@ if (!isOwnProfile.value) {
   await refreshFriendshipStatus()
 }
 
-async function handleFriendshipAction(action: 'add' | 'accept' | 'reject' | 'remove') {
+async function handleFriendshipAction(action: 'add' | 'accept' | 'reject' | 'cancel' | 'remove') {
   isFriendshipRefreshing.value = true
   switch (action) {
     case 'add':
@@ -35,6 +35,9 @@ async function handleFriendshipAction(action: 'add' | 'accept' | 'reject' | 'rem
       break
     case 'reject':
       if (friendshipStatus.value.requestId) await rejectRequest(friendshipStatus.value.requestId)
+      break
+    case 'cancel':
+      if (friendshipStatus.value.requestId) await cancelRequest(friendshipStatus.value.requestId)
       break
     case 'remove':
       await removeFriend(profileId)
@@ -211,6 +214,7 @@ useSeoMeta({
           @add="handleFriendshipAction('add')"
           @accept="handleFriendshipAction('accept')"
           @reject="handleFriendshipAction('reject')"
+          @cancel="handleFriendshipAction('cancel')"
           @remove="handleFriendshipAction('remove')"
         />
       </div>

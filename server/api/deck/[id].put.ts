@@ -16,8 +16,7 @@ export default defineEventHandler(async (event) => {
 
   await checkDeckOwnership(id, user.id)
 
-  const body = await readBody(event)
-  const { commander, commanderPrintUri, partner, partnerPrintUri, background, backgroundPrintUri, archetypes, deck } = await insertDeckWithCommanderSchema.parseAsync(body)
+  const { commander, commanderPrintUri, partner, partnerPrintUri, background, backgroundPrintUri, archetypes, deck } = await readValidatedBody(event, body => insertDeckWithCommanderSchema.parseAsync(body))
 
   const commanderId = await findOrCreateCommander(commander)
   const partnerCommanderId = partner ? await findOrCreateCommander(partner) : null

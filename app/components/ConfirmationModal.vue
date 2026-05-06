@@ -1,12 +1,20 @@
 <script setup lang="ts">
-defineProps<{
+const { description, onConfirm } = defineProps<{
   description: string
   onConfirm: () => void
 }>()
+
+const open = ref(false)
+
+function confirm() {
+  onConfirm()
+  open.value = false
+}
 </script>
 
 <template>
   <UModal
+    v-model:open="open"
     title="Confirm"
     :description="description"
     :close="{
@@ -20,12 +28,8 @@ defineProps<{
     <template #body>
       <UButton
         label="Confirm"
-        @click="onConfirm"
+        @click="confirm"
       />
     </template>
   </UModal>
 </template>
-
-<style scoped>
-
-</style>
