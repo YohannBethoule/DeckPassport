@@ -1,7 +1,7 @@
 import { requireAuth } from '#server/utils/auth'
 import type { DbTransaction } from '#server/database'
 import { db } from '#server/database'
-import { findFriendRequestFromFriendship } from '#server/utils/social'
+import { findFriendRequestFromUsers } from '#server/utils/social'
 import { friendRequests, friendships } from '#server/database/schema'
 import { and, eq, or } from 'drizzle-orm'
 import { FRIEND_REQUEST_STATUS } from '#shared/schemas/social'
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
   const user = await requireAuth(event)
 
-  const request = await findFriendRequestFromFriendship(user.id, id, FRIEND_REQUEST_STATUS.ACCEPTED)
+  const request = await findFriendRequestFromUsers(user.id, id, FRIEND_REQUEST_STATUS.ACCEPTED)
 
   if (!request) {
     throw createError({ statusCode: 404, statusMessage: 'No friendship found with this user' })

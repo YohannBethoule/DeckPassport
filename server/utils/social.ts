@@ -3,17 +3,17 @@ import { friendRequests } from '#server/database/schema'
 import { and, eq, or } from 'drizzle-orm'
 import type { FriendRequestStatus } from '#shared/schemas/social'
 
-export async function findFriendRequestFromFriendship(senderId: string, receiverId: string, status: FriendRequestStatus) {
+export async function findFriendRequestFromUsers(userAID: string, userBID: string, status: FriendRequestStatus) {
   return db.query.friendRequests.findFirst({
     where: or(
       and(
-        eq(friendRequests.senderId, senderId),
-        eq(friendRequests.receiverId, receiverId),
+        eq(friendRequests.senderId, userAID),
+        eq(friendRequests.receiverId, userBID),
         eq(friendRequests.status, status)
       ),
       and(
-        eq(friendRequests.senderId, receiverId),
-        eq(friendRequests.receiverId, senderId),
+        eq(friendRequests.senderId, userBID),
+        eq(friendRequests.receiverId, userAID),
         eq(friendRequests.status, status)
       )
     )

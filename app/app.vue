@@ -24,7 +24,7 @@ const profilePath = computed(() => session.value?.data?.user
 const mobileNavItems = computed(() => [
   { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
   ...(profilePath.value ? [{ label: 'My Decks', to: profilePath.value, icon: 'i-lucide-user' }] : []),
-  { label: 'Social', to: '/social', icon: 'i-lucide-users' },
+  ...(profilePath.value ? [{ label: 'Social', to: '/social', icon: 'i-lucide-users' }] : []),
   { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
 ])
 
@@ -48,7 +48,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <UApp>
+  <UApp :toaster="{ position: 'top-right' }">
     <UHeader>
       <template #left>
         <NuxtLink to="/">

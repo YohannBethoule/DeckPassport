@@ -26,25 +26,28 @@ if (!isOwnProfile.value) {
 
 async function handleFriendshipAction(action: 'add' | 'accept' | 'reject' | 'cancel' | 'remove') {
   isFriendshipRefreshing.value = true
-  switch (action) {
-    case 'add':
-      await addFriend(profileId)
-      break
-    case 'accept':
-      if (friendshipStatus.value.requestId) await acceptRequest(friendshipStatus.value.requestId)
-      break
-    case 'reject':
-      if (friendshipStatus.value.requestId) await rejectRequest(friendshipStatus.value.requestId)
-      break
-    case 'cancel':
-      if (friendshipStatus.value.requestId) await cancelRequest(friendshipStatus.value.requestId)
-      break
-    case 'remove':
-      await removeFriend(profileId)
-      break
+  try {
+    switch (action) {
+      case 'add':
+        await addFriend(profileId)
+        break
+      case 'accept':
+        if (friendshipStatus.value.requestId) await acceptRequest(friendshipStatus.value.requestId)
+        break
+      case 'reject':
+        if (friendshipStatus.value.requestId) await rejectRequest(friendshipStatus.value.requestId)
+        break
+      case 'cancel':
+        if (friendshipStatus.value.requestId) await cancelRequest(friendshipStatus.value.requestId)
+        break
+      case 'remove':
+        await removeFriend(profileId)
+        break
+    }
+    await refreshFriendshipStatus()
+  } finally {
+    isFriendshipRefreshing.value = false
   }
-  await refreshFriendshipStatus()
-  isFriendshipRefreshing.value = false
 }
 
 const { data: profile, error, refresh: refreshProfile } = await useFetch(`/api/user/${profileId}`)

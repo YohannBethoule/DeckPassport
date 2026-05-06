@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo('/login')
   }
 
-  const protectedRoutes = ['/dashboard']
+  const protectedRoutes = ['/dashboard', '/social']
 
   if (!protectedRoutes.some(route => to.path.startsWith(route))) {
     return
@@ -19,6 +19,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const session = useSession()
 
   if (!session.value?.data) {
-    return navigateTo('/login')
+    return navigateTo('/auth-required')
   }
 })

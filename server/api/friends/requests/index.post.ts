@@ -4,7 +4,7 @@ import { db } from '#server/database'
 import { friendRequests, friendships } from '#server/database/schema'
 import { PG_ERROR } from 'pg-error-codes-ts/lib'
 import { and, eq } from 'drizzle-orm'
-import { findFriendRequestFromFriendship } from '#server/utils/social'
+import { findFriendRequestFromUsers } from '#server/utils/social'
 
 export default defineEventHandler(async (event) => {
   const { receiverId } = await readValidatedBody(event, body => sendFriendRequestSchema.parseAsync(body))
@@ -21,10 +21,10 @@ export default defineEventHandler(async (event) => {
 
   const [friendshipExist, friendRequest] = await Promise.all([
     doesFriendshipExist(userId, receiverId),
-    findFriendRequestFromFriendship(userId, receiverId, FRIEND_REQUEST_STATUS.PENDING)
+    findFriendRequestFromUsers(userId, receiverId, FRIEND_REQUEST_STATUS.PENDING)
   ])
   if (friendshipExist) {
-    throw createError({ statusCode: 409, statusMessage: 'You are already social with this user' })
+    throw createError({ statusCode: 409, statusMessage: 'You are already friends with this user' })
   }
   if (friendRequest) {
     throw createError({ statusCode: 409, statusMessage: 'Friend request already exists' })

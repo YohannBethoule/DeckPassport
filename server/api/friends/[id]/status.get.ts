@@ -1,5 +1,5 @@
 import { requireAuth } from '#server/utils/auth'
-import { findFriendRequestFromFriendship } from '#server/utils/social'
+import { findFriendRequestFromUsers } from '#server/utils/social'
 import type { FriendshipStatusResponse } from '#shared/schemas/social'
 import { FRIEND_REQUEST_STATUS, FRIENDSHIP_STATUS } from '#shared/schemas/social'
 import { db } from '#server/database'
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event): Promise<FriendshipStatusRespons
     return { status: FRIENDSHIP_STATUS.FRIENDS }
   }
 
-  const friendRequest = await findFriendRequestFromFriendship(user.id, id, FRIEND_REQUEST_STATUS.PENDING)
+  const friendRequest = await findFriendRequestFromUsers(user.id, id, FRIEND_REQUEST_STATUS.PENDING)
   if (!friendRequest) {
     return { status: FRIENDSHIP_STATUS.NONE }
   }

@@ -57,9 +57,7 @@ export const friendRequestBaseSchema = z.object({
   id: z.number(),
   senderId: z.string(),
   receiverId: z.string(),
-  status: z.enum(FRIEND_REQUEST_STATUSES),
-  createdAt: z.date(),
-  updatedAt: z.date()
+  status: z.enum(FRIEND_REQUEST_STATUSES)
 })
 export type SentFriendRequest = z.infer<typeof friendRequestBaseSchema> & { receiver: FriendSummary }
 export type ReceivedFriendRequest = z.infer<typeof friendRequestBaseSchema> & { sender: FriendSummary }
