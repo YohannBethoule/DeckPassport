@@ -1,9 +1,11 @@
 import { requireAuth } from '#server/utils/auth'
 import { FRIEND_REQUEST_STATUS, respondToFriendRequestSchema } from '#shared/schemas/social'
+import { NOTIFICATION_TYPE } from '#shared/schemas/notification'
 import { db } from '#server/database'
 import { friendRequests, friendships } from '#server/database/schema'
 import type { InferSelectModel } from 'drizzle-orm'
 import { and, eq } from 'drizzle-orm'
+import { createFriendRequestNotification } from '#server/utils/social'
 
 type FriendRequest = InferSelectModel<typeof friendRequests>
 
@@ -75,6 +77,8 @@ async function acceptFriendRequest(id: number, senderId: string, receiverId: str
       .values([{ userId: senderId, friendId: receiverId }, { userId: receiverId, friendId: senderId }])
       .onConflictDoNothing()
   })
+
+  createFriendRequestNotification(senderId, receiverId, NOTIFICATION_TYPE.FRIEND_REQUEST_ACCEPTED, id).catch(console.error)
 }
 
 async function declineFriendRequest(id: number) {

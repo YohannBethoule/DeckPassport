@@ -1,5 +1,6 @@
 <script setup>
 import DonationLink from '~/components/DonationLink.vue'
+import NotificationBell from '~/components/NotificationBell.vue'
 
 const { useSession, signOut } = useAuth()
 const session = useSession()
@@ -66,6 +67,7 @@ useSeoMeta({
           class="hidden sm:flex"
         />
         <template v-if="session?.data?.user">
+          <NotificationBell />
           <UDropdownMenu
             :items="[
               [{

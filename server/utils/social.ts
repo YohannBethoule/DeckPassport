@@ -1,7 +1,8 @@
 import { db } from '#server/database'
-import { friendRequests } from '#server/database/schema'
+import { friendRequests, friendRequestNotifications, notifications } from '#server/database/schema'
 import { and, eq, or } from 'drizzle-orm'
 import type { FriendRequestStatus } from '#shared/schemas/social'
+import type { NotificationType } from '#shared/schemas/notification'
 
 export async function findFriendRequestFromUsers(userAID: string, userBID: string, status: FriendRequestStatus) {
   return db.query.friendRequests.findFirst({
@@ -17,5 +18,17 @@ export async function findFriendRequestFromUsers(userAID: string, userBID: strin
         eq(friendRequests.status, status)
       )
     )
+  })
+}
+
+export async function createFriendRequestNotification(
+  userId: string,
+  actorId: string,
+  type: NotificationType,
+  requestId: number
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    const [inserted] = await tx.insert(notifications).values({ userId, type }).returning({ id: notifications.id })
+    await tx.insert(friendRequestNotifications).values({ notificationId: inserted!.id, actorId, requestId })
   })
 }

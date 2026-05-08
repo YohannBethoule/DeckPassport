@@ -1,10 +1,11 @@
 import { requireAuth } from '#server/utils/auth'
 import { FRIEND_REQUEST_STATUS, sendFriendRequestSchema } from '#shared/schemas/social'
+import { NOTIFICATION_TYPE } from '#shared/schemas/notification'
 import { db } from '#server/database'
 import { friendRequests, friendships } from '#server/database/schema'
 import { PG_ERROR } from 'pg-error-codes-ts/lib'
 import { and, eq } from 'drizzle-orm'
-import { findFriendRequestFromUsers } from '#server/utils/social'
+import { findFriendRequestFromUsers, createFriendRequestNotification } from '#server/utils/social'
 
 export default defineEventHandler(async (event) => {
   const { receiverId } = await readValidatedBody(event, body => sendFriendRequestSchema.parseAsync(body))
@@ -38,6 +39,9 @@ export default defineEventHandler(async (event) => {
       target: [friendRequests.senderId, friendRequests.receiverId],
       set: { status: FRIEND_REQUEST_STATUS.PENDING, updatedAt: new Date() }
     }).returning({ id: friendRequests.id })
+
+    createFriendRequestNotification(receiverId, userId, NOTIFICATION_TYPE.FRIEND_REQUEST_RECEIVED, created!.id).catch(console.error)
+
     return created!.id
   } catch (err) {
     if (err instanceof Error && 'code' in err && err.code === PG_ERROR.FOREIGN_KEY_VIOLATION) {
