@@ -5,9 +5,7 @@ import { decks } from '#server/database/schema'
 import { insertDeckWithCommanderSchema } from '#shared/schemas/deck'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-
-  const { commander, commanderPrintUri, partner, partnerPrintUri, background, backgroundPrintUri, archetypes, deck } = await insertDeckWithCommanderSchema.parseAsync(body)
+  const { commander, commanderPrintUri, partner, partnerPrintUri, background, backgroundPrintUri, archetypes, deck } = await readValidatedBody(event, body => insertDeckWithCommanderSchema.parseAsync(body))
 
   // Get user session if authenticated
   const session = await auth.api.getSession({

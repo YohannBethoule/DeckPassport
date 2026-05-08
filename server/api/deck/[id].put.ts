@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { db } from '../../database'
-import { auth } from '../../utils/auth'
+import { requireAuth } from '../../utils/auth'
 import { checkDeckOwnership, findOrCreateCommander, findOrCreateBackground, updateArchetypes, updatePrints } from '../../utils/deck'
 import { decks } from '#server/database/schema'
 import { insertDeckWithCommanderSchema } from '#shared/schemas/deck'
@@ -12,18 +12,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Invalid deck ID' })
   }
 
-  const session = await auth.api.getSession({
-    headers: event.headers
-  }).catch(() => null)
+  const user = await requireAuth(event)
 
-  if (!session?.user?.id) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
+  await checkDeckOwnership(id, user.id)
 
-  await checkDeckOwnership(id, session.user.id)
-
-  const body = await readBody(event)
-  const { commander, commanderPrintUri, partner, partnerPrintUri, background, backgroundPrintUri, archetypes, deck } = await insertDeckWithCommanderSchema.parseAsync(body)
+  const { commander, commanderPrintUri, partner, partnerPrintUri, background, backgroundPrintUri, archetypes, deck } = await readValidatedBody(event, body => insertDeckWithCommanderSchema.parseAsync(body))
 
   const commanderId = await findOrCreateCommander(commander)
   const partnerCommanderId = partner ? await findOrCreateCommander(partner) : null

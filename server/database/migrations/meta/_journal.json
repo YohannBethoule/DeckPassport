@@ -57,6 +57,27 @@
       "when": 1774914784360,
       "tag": "0007_soft_rhodey",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1777033173811,
+      "tag": "0008_demonic_prowler",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778169994573,
+      "tag": "0009_typical_zarek",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778249541686,
+      "tag": "0010_foamy_raza",
+      "breakpoints": true
     }
   ]
 }

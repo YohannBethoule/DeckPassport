@@ -1,5 +1,6 @@
 <script setup>
 import DonationLink from '~/components/DonationLink.vue'
+import NotificationBell from '~/components/NotificationBell.vue'
 
 const { useSession, signOut } = useAuth()
 const session = useSession()
@@ -24,6 +25,7 @@ const profilePath = computed(() => session.value?.data?.user
 const mobileNavItems = computed(() => [
   { label: 'Create Deck', to: '/deck/new', icon: 'i-lucide-plus' },
   ...(profilePath.value ? [{ label: 'My Decks', to: profilePath.value, icon: 'i-lucide-user' }] : []),
+  ...(profilePath.value ? [{ label: 'Social', to: '/social', icon: 'i-lucide-users' }] : []),
   { label: 'Browse Decks', to: '/browse', icon: 'i-lucide-search' }
 ])
 
@@ -47,7 +49,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <UApp>
+  <UApp :toaster="{ position: 'top-right' }">
     <UHeader>
       <template #left>
         <NuxtLink to="/">
@@ -65,12 +67,18 @@ useSeoMeta({
           class="hidden sm:flex"
         />
         <template v-if="session?.data?.user">
+          <NotificationBell />
           <UDropdownMenu
             :items="[
               [{
                 label: 'My Decks',
                 icon: 'i-lucide-user',
                 onSelect: () => navigateTo(profilePath)
+              }],
+              [{
+                label: 'Social',
+                icon: 'i-lucide-users',
+                onSelect: () => navigateTo('/social')
               }],
               [{
                 label: 'Sign out',
