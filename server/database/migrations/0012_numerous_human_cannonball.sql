@@ -1,0 +1,1 @@
+ALTER TABLE "playgroups" ADD COLUMN "image_url" text;

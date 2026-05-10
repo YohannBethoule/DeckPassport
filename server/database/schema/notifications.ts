@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm'
 import { boolean, index, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 import { user } from './auth'
 import { friendRequests } from './social'
+import { playgroups, playgroupInvitations } from './playgroups'
 import { NOTIFICATION_TYPES } from '../../../shared/schemas/notification'
 
 export const notifications = pgTable('notifications', {
@@ -28,6 +29,14 @@ export const systemNotifications = pgTable('system_notifications', {
   link: text('link')
 })
 
+export const playgroupNotifications = pgTable('playgroup_notifications', {
+  notificationId: integer('notification_id').primaryKey().references(() => notifications.id, { onDelete: 'cascade' }),
+  playgroupId: integer('playgroup_id').references(() => playgroups.id, { onDelete: 'set null' }),
+  playgroupName: text('playgroup_name'),
+  actorId: text('actor_id').references(() => user.id, { onDelete: 'set null' }),
+  invitationId: integer('invitation_id').references(() => playgroupInvitations.id, { onDelete: 'set null' })
+})
+
 export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(user, { fields: [notifications.userId], references: [user.id] }),
   friendRequestNotification: one(friendRequestNotifications, {
@@ -37,6 +46,10 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
   systemNotification: one(systemNotifications, {
     fields: [notifications.id],
     references: [systemNotifications.notificationId]
+  }),
+  playgroupNotification: one(playgroupNotifications, {
+    fields: [notifications.id],
+    references: [playgroupNotifications.notificationId]
   })
 }))
 

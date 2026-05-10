@@ -1,0 +1,1 @@
+ALTER TABLE "playgroup_notifications" ADD COLUMN "playgroup_name" text;
