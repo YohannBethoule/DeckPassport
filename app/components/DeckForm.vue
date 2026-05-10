@@ -3,6 +3,7 @@ import { DESCRIPTION_MAX_LENGTH, type InsertDeckWithCommander } from '#shared/sc
 import { insertDeckWithCommanderFormSchema } from '#shared/schemas/deck'
 import { type ChromaticColor, CHROMATIC_COLORS, type ManaColor } from '#shared/schemas/commander'
 import type { ScryfallCard } from '~/composables/useScryfall'
+import { TooltipRoot, TooltipTrigger, TooltipPortal, TooltipContent } from 'reka-ui'
 
 const props = withDefaults(defineProps<{
   initialValues?: InsertDeckWithCommander
@@ -187,12 +188,12 @@ function onTogglePartner(mode: 'partner' | 'background') {
 
 const { data: bracketOptions } = await useFetch('/api/brackets', {
   transform: (brackets: { id: number, name: string, description: string | null }[]) =>
-    brackets.map(b => ({ label: `Bracket ${b.id} - ${b.name}`, value: b.id }))
+    brackets.map(b => ({ label: `Bracket ${b.id} - ${b.name}`, value: b.id, description: b.description }))
 })
 
 const { data: archetypeOptions } = await useFetch('/api/archetypes', {
-  transform: (archetypes: { id: number, name: string }[]) =>
-    archetypes.map(a => ({ label: a.name, value: a.id }))
+  transform: (archetypes: { id: number, name: string, description: string | null }[]) =>
+    archetypes.map(a => ({ label: a.name, value: a.id, description: a.description }))
 })
 
 const secondArchetypeOptions = computed(() => {
@@ -301,7 +302,29 @@ function onSubmit() {
         :items="bracketOptions ?? []"
         placeholder="Select a bracket"
         class="w-full"
-      />
+        :ui="{ itemLabel: 'block w-full truncate', itemDescription: 'hidden' }"
+      >
+        <template #item-label="{ item }">
+          <TooltipRoot
+            :delay-duration="300"
+            :disable-hoverable-content="true"
+          >
+            <TooltipTrigger as-child>
+              <span class="block w-full truncate">{{ item.label }}</span>
+            </TooltipTrigger>
+            <TooltipPortal>
+              <TooltipContent
+                v-if="item.description"
+                side="right"
+                :side-offset="8"
+                class="z-50 max-w-52 whitespace-normal rounded-sm bg-[var(--ui-bg)] px-2.5 py-1.5 text-xs text-[var(--ui-text-highlighted)] shadow-sm ring ring-[var(--ui-border)]"
+              >
+                {{ item.description }}
+              </TooltipContent>
+            </TooltipPortal>
+          </TooltipRoot>
+        </template>
+      </USelect>
     </UFormField>
 
     <div class="grid grid-cols-2 gap-4">
@@ -314,7 +337,29 @@ function onSubmit() {
           :items="archetypeOptions ?? []"
           placeholder="Select an archetype"
           class="w-full"
-        />
+          :ui="{ itemLabel: 'block w-full truncate', itemDescription: 'hidden' }"
+        >
+          <template #item-label="{ item }">
+            <TooltipRoot
+              :delay-duration="300"
+              :disable-hoverable-content="true"
+            >
+              <TooltipTrigger as-child>
+                <span class="block w-full truncate">{{ item.label }}</span>
+              </TooltipTrigger>
+              <TooltipPortal>
+                <TooltipContent
+                  v-if="item.description"
+                  side="right"
+                  :side-offset="8"
+                  class="z-50 max-w-52 whitespace-normal rounded-sm bg-[var(--ui-bg)] px-2.5 py-1.5 text-xs text-[var(--ui-text-highlighted)] shadow-sm ring ring-[var(--ui-border)]"
+                >
+                  {{ item.description }}
+                </TooltipContent>
+              </TooltipPortal>
+            </TooltipRoot>
+          </template>
+        </USelect>
       </UFormField>
 
       <UFormField
@@ -327,7 +372,29 @@ function onSubmit() {
           placeholder="Select an archetype"
           class="w-full"
           :disabled="!form.archetypes[0]"
-        />
+          :ui="{ itemLabel: 'block w-full truncate', itemDescription: 'hidden' }"
+        >
+          <template #item-label="{ item }">
+            <TooltipRoot
+              :delay-duration="300"
+              :disable-hoverable-content="true"
+            >
+              <TooltipTrigger as-child>
+                <span class="block w-full truncate">{{ item.label }}</span>
+              </TooltipTrigger>
+              <TooltipPortal>
+                <TooltipContent
+                  v-if="item.description"
+                  side="right"
+                  :side-offset="8"
+                  class="z-50 max-w-52 whitespace-normal rounded-sm bg-[var(--ui-bg)] px-2.5 py-1.5 text-xs text-[var(--ui-text-highlighted)] shadow-sm ring ring-[var(--ui-border)]"
+                >
+                  {{ item.description }}
+                </TooltipContent>
+              </TooltipPortal>
+            </TooltipRoot>
+          </template>
+        </USelect>
       </UFormField>
     </div>
 
