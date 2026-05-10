@@ -3,6 +3,9 @@ import { z } from 'zod/v4'
 export const NOTIFICATION_TYPE = {
   FRIEND_REQUEST_RECEIVED: 'friend_request_received',
   FRIEND_REQUEST_ACCEPTED: 'friend_request_accepted',
+  PLAYGROUP_INVITATION_RECEIVED: 'playgroup_invitation_received',
+  PLAYGROUP_MEMBER_JOINED: 'playgroup_member_joined',
+  PLAYGROUP_DISBANDED: 'playgroup_disbanded',
   SYSTEM: 'system'
 } as const
 
@@ -29,4 +32,17 @@ export const systemNotificationSchema = notificationBaseSchema.extend({
 })
 export type SystemNotification = z.infer<typeof systemNotificationSchema>
 
-export type AppNotification = FriendRequestNotification | SystemNotification
+export const playgroupNotificationSchema = notificationBaseSchema.extend({
+  type: z.enum([
+    NOTIFICATION_TYPE.PLAYGROUP_INVITATION_RECEIVED,
+    NOTIFICATION_TYPE.PLAYGROUP_MEMBER_JOINED,
+    NOTIFICATION_TYPE.PLAYGROUP_DISBANDED
+  ]),
+  playgroupId: z.number().nullable(),
+  playgroupName: z.string().nullable(),
+  actor: z.object({ id: z.string(), name: z.string(), image: z.string().nullable() }).nullable(),
+  invitationId: z.number().nullable()
+})
+export type PlaygroupNotification = z.infer<typeof playgroupNotificationSchema>
+
+export type AppNotification = FriendRequestNotification | SystemNotification | PlaygroupNotification

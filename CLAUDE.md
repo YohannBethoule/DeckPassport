@@ -34,7 +34,9 @@ Schema files in `server/database/schema/`. `server/database/index.ts` exports th
 
 Neon has two branches:
 - `main` → production
-- `dev` → local dev and Vercel preview deployments
+- `dev` → local dev and preview deployments
+
+The app is hosted on a Hetzner VPS, deployments managed via Coolify.
 
 Set `DATABASE_URL` in `.env` to the `dev` branch connection string for local work.
 
