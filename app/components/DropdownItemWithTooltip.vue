@@ -10,6 +10,10 @@ const isOpen = ref(false)
 onMounted(() => {
   isTouchOnly.value = window.matchMedia('(hover: none)').matches
 })
+
+function interceptClick(e: MouseEvent) {
+  e.stopImmediatePropagation()
+}
 </script>
 
 <template>
@@ -17,18 +21,18 @@ onMounted(() => {
     <span class="min-w-0 flex-1 truncate">{{ label }}</span>
     <UPopover
       v-if="description"
-      :mode="isTouchOnly ? 'click' : 'hover'"
-      :open="isTouchOnly ? isOpen : undefined"
-      :open-delay="300"
+      :open="isOpen"
       :content="{ side: 'right', sideOffset: 8, collisionPadding: 12 }"
-      @update:open="(val) => { if (isTouchOnly) isOpen = val }"
+      @update:open="isOpen = $event"
     >
       <button
         type="button"
         class="shrink-0 text-muted hover:text-default focus-visible:outline-none"
         @pointerdown.stop
         @pointerup.stop
-        @click.stop
+        @click.capture="interceptClick"
+        @mouseenter="() => { if (!isTouchOnly) isOpen = true }"
+        @mouseleave="() => { if (!isTouchOnly) isOpen = false }"
         @touchstart.stop.prevent="isOpen = !isOpen"
       >
         <UIcon
