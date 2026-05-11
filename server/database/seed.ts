@@ -47,7 +47,16 @@ const archetypeData = [
   { id: 29, name: 'Theft', description: 'Steals opponents\' permanents and spells, turning their resources against them.' },
   { id: 30, name: 'Lifegain', description: 'Gains large amounts of life and converts that life total into win conditions and card advantage.' },
   { id: 31, name: '+1/+1', description: 'Put a ton of +1/+1 counters of your creatures.' },
-  { id: 32, name: 'Goad', description: 'Force your opponents to fight amongst themselves.' }
+  { id: 32, name: 'Goad', description: 'Force your opponents to fight amongst themselves.' },
+  { id: 33, name: 'Aikido', description: 'Turns opponents\' aggression and spells against them using redirection, copying, and punishment effects.' },
+  { id: 34, name: 'Treasure', description: 'Generates and exploits Treasure tokens for mana acceleration and value payoffs.' },
+  { id: 35, name: 'Equipment', description: 'Equips creatures with powerful artifacts to gain consistent advantages and dominate combat.' },
+  { id: 36, name: 'Vehicles', description: 'Crews artifact Vehicles to field powerful threats that dodge sorcery-speed removal.' },
+  { id: 37, name: '-1/-1', description: 'Distributes -1/-1 counters to weaken and destroy creatures while triggering synergistic payoffs.' },
+  { id: 38, name: 'Energy', description: 'Accumulates energy counters and spends them on powerful abilities and win conditions.' },
+  { id: 39, name: 'Land Destruction', description: 'Denies opponents mana by destroying or bouncing their lands to cripple their game plan.' },
+  { id: 40, name: 'Mutate', description: 'Stacks Mutate creatures onto a host to build monstrous threats with layered abilities.' },
+  { id: 41, name: 'Zoo', description: 'Runs a wide variety of large, efficient creatures across multiple creature types for raw board presence.' }
 ]
 
 async function seed() {

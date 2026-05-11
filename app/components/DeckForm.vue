@@ -187,12 +187,12 @@ function onTogglePartner(mode: 'partner' | 'background') {
 
 const { data: bracketOptions } = await useFetch('/api/brackets', {
   transform: (brackets: { id: number, name: string, description: string | null }[]) =>
-    brackets.map(b => ({ label: `Bracket ${b.id} - ${b.name}`, value: b.id }))
+    brackets.map(b => ({ label: `Bracket ${b.id} - ${b.name}`, value: b.id, description: b.description ?? undefined }))
 })
 
 const { data: archetypeOptions } = await useFetch('/api/archetypes', {
-  transform: (archetypes: { id: number, name: string }[]) =>
-    archetypes.map(a => ({ label: a.name, value: a.id }))
+  transform: (archetypes: { id: number, name: string, description: string | null }[]) =>
+    archetypes.map(a => ({ label: a.name, value: a.id, description: a.description ?? undefined }))
 })
 
 const secondArchetypeOptions = computed(() => {
@@ -301,7 +301,16 @@ function onSubmit() {
         :items="bracketOptions ?? []"
         placeholder="Select a bracket"
         class="w-full"
-      />
+        :ui="{ itemLabel: 'block w-full truncate', itemDescription: 'hidden' }"
+      >
+        <template #item-label="{ item }">
+          <DropdownItemWithTooltip
+            v-if="item && typeof item === 'object'"
+            :label="item.label ?? ''"
+            :description="item.description"
+          />
+        </template>
+      </USelect>
     </UFormField>
 
     <div class="grid grid-cols-2 gap-4">
@@ -314,7 +323,15 @@ function onSubmit() {
           :items="archetypeOptions ?? []"
           placeholder="Select an archetype"
           class="w-full"
-        />
+          :ui="{ itemLabel: 'block w-full truncate', itemDescription: 'hidden' }"
+        >
+          <template #item-label="{ item }">
+            <DropdownItemWithTooltip
+              :label="item.label"
+              :description="item.description"
+            />
+          </template>
+        </USelect>
       </UFormField>
 
       <UFormField
@@ -327,7 +344,15 @@ function onSubmit() {
           placeholder="Select an archetype"
           class="w-full"
           :disabled="!form.archetypes[0]"
-        />
+          :ui="{ itemLabel: 'block w-full truncate', itemDescription: 'hidden' }"
+        >
+          <template #item-label="{ item }">
+            <DropdownItemWithTooltip
+              :label="item.label"
+              :description="item.description"
+            />
+          </template>
+        </USelect>
       </UFormField>
     </div>
 
