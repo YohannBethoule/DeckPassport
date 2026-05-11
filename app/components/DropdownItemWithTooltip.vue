@@ -33,7 +33,7 @@ function interceptClick(e: MouseEvent) {
         @click.capture="interceptClick"
         @mouseenter="() => { if (!isTouchOnly) isOpen = true }"
         @mouseleave="() => { if (!isTouchOnly) isOpen = false }"
-        @touchstart.stop.prevent="isOpen = !isOpen"
+        @touchend.stop.prevent="isOpen = !isOpen"
       >
         <UIcon
           name="i-lucide-info"
