@@ -5,6 +5,8 @@ defineProps<{
 }>()
 
 const isTouchOnly = ref(false)
+const isOpen = ref(false)
+
 onMounted(() => {
   isTouchOnly.value = window.matchMedia('(hover: none)').matches
 })
@@ -16,8 +18,10 @@ onMounted(() => {
     <UPopover
       v-if="description"
       :mode="isTouchOnly ? 'click' : 'hover'"
+      :open="isTouchOnly ? isOpen : undefined"
       :open-delay="300"
       :content="{ side: 'right', sideOffset: 8, collisionPadding: 12 }"
+      @update:open="(val) => { if (isTouchOnly) isOpen = val }"
     >
       <button
         type="button"
@@ -25,6 +29,7 @@ onMounted(() => {
         @pointerdown.stop
         @pointerup.stop
         @click.stop
+        @touchstart.stop.prevent="isOpen = !isOpen"
       >
         <UIcon
           name="i-lucide-info"
