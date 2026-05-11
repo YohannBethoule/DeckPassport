@@ -27,6 +27,7 @@ function interceptClick(e: MouseEvent) {
     >
       <button
         type="button"
+        aria-label="More info"
         class="shrink-0 text-muted hover:text-default focus-visible:outline-none"
         @pointerdown.stop
         @pointerup.stop
