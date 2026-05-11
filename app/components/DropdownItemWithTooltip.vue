@@ -22,7 +22,7 @@ function interceptClick(e: MouseEvent) {
     <UPopover
       v-if="description"
       :open="isOpen"
-      :content="{ side: 'right', sideOffset: 8, collisionPadding: 12 }"
+      :content="{ side: isTouchOnly ? 'bottom' : 'right', sideOffset: 8, collisionPadding: 12 }"
       @update:open="isOpen = $event"
     >
       <button
