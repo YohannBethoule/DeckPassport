@@ -4,7 +4,7 @@ import { NOTIFICATION_TYPE } from '#shared/schemas/notification'
 import { db } from '#server/database'
 import { playgroups, playgroupMembers, playgroupInvitations, friendships } from '#server/database/schema'
 import { and, eq } from 'drizzle-orm'
-import { PG_ERROR } from 'pg-error-codes-ts/lib'
+import { PG_ERROR } from 'pg-error-codes-ts/lib/index.js'
 import { createPlaygroupNotifications } from '#server/utils/playgroupNotifications'
 
 export default defineEventHandler(async (event): Promise<number> => {

@@ -3,7 +3,7 @@ import { FRIEND_REQUEST_STATUS, sendFriendRequestSchema } from '#shared/schemas/
 import { NOTIFICATION_TYPE } from '#shared/schemas/notification'
 import { db } from '#server/database'
 import { friendRequests, friendships } from '#server/database/schema'
-import { PG_ERROR } from 'pg-error-codes-ts/lib'
+import { PG_ERROR } from 'pg-error-codes-ts/lib/index.js'
 import { and, eq } from 'drizzle-orm'
 import { findFriendRequestFromUsers, createFriendRequestNotification } from '#server/utils/social'
 
